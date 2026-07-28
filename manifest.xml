@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+           xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
+           xsi:type="TaskPaneApp">
+
+  <Id>12345678-1234-1234-1234-123456789abc</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>نام شما</ProviderName>
+  <DefaultLocale>fa-IR</DefaultLocale>
+
+  <DisplayName DefaultValue="افزونه تستی من" />
+  <Description DefaultValue="افزونه ساده برای ورد"/>
+
+  <!-- استفاده از آیکون‌های عمومی (بدون نیاز به آپلود فایل) -->
+  <IconUrl DefaultValue="https://www.microsoft.com/favicon.ico" />
+  <HighResolutionIconUrl DefaultValue="https://www.microsoft.com/favicon.ico" />
+  <SupportUrl DefaultValue="https://www.microsoft.com" />
+
+  <AppDomains>
+    <AppDomain>https://virayeshu.github.com</AppDomain>
+  </AppDomains>
+
+  <Hosts>
+    <Host Name="Document" />
+  </Hosts>
+
+  <DefaultSettings>
+    <SourceLocation DefaultValue="https://virayeshu.github.com/index.html" />
+  </DefaultSettings>
+
+  <Permissions>ReadWriteDocument</Permissions>
+
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Hosts>
+      <Host xsi:type="Document">
+        <DesktopFormFactor>
+          <ExtensionPoint xsi:type="PrimaryCommandSurface">
+            <CustomTab id="MyCustomTab">
+              <Group id="MyGroup">
+                <Label resid="GroupLabel" />
+                <Icon>
+                  <bt:Image size="16" resid="Icon.16x16" />
+                  <bt:Image size="32" resid="Icon.32x32" />
+                  <bt:Image size="80" resid="Icon.80x80" />
+                </Icon>
+
+                <Control xsi:type="Button" id="MyButton">
+                  <Label resid="TaskpaneButton.Label" />
+                  <Supertip>
+                    <Title resid="TaskpaneButton.Label" />
+                    <Description resid="TaskpaneButton.Tooltip" />
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16x16" />
+                    <bt:Image size="32" resid="Icon.32x32" />
+                    <bt:Image size="80" resid="Icon.80x80" />
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <TaskpaneId>MyTaskpane</TaskpaneId>
+                    <SourceLocation resid="Taskpane.Url" />
+                  </Action>
+                </Control>
+              </Group>
+              <Label resid="CommandsGroup.Label" />
+            </CustomTab>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>https://virayeshu.github.come="https://www.microsoft.com/favicon.ico"/>
+        <bt:Image id="Icon.32x32" DefaultValue="https://www.microsoft.com/favicon.ico"/>
+        <bt:Image id="Icon.80x80" DefaultValue="https://www.microsoft.com/favicon.ico"/>
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="Taskpane.Url" DefaultValue="https://virayeshu.github.com/index.html"/>
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="CommandsGroup.Label" DefaultValue="افزونه من"/>
+        <bt:String id="GroupLabel" DefaultValue="گروه ابزارها"/>
+        <bt:String id="TaskpaneButton.Label" DefaultValue="باز کردن افزونه"/>
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="TaskpaneButton.Tooltip" DefaultValue="برای باز کردن پنل افزونه کلیک کنید"/>
+      </bt:LongStrings>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>
