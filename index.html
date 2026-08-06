@@ -1,14 +1,692 @@
 <!DOCTYPE html>
-<html>
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>افزونه ساده ورد</title>
-    <!-- کتابخانه رسمی آفیس (حتماً باید از CDN لود شود) -->
-    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js" type="text/javascript"></script>
-    <script src="script.js" type="text/javascript"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خدمات جامع فارغ‌التحصیلی</title>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazir', 'Tahoma', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        /* نوار بالا و دکمه تغییر زبان */
+        .top-bar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 12px;
+        }
+
+        .lang-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-family: inherit;
+            font-size: 0.9em;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .lang-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+
+        .hero {
+            background: white;
+            border-radius: 12px;
+            padding: 25px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            text-align: center;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero h1 {
+            font-size: 1.6em;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .hero h1 i {
+            font-size: 0.85em;
+            color: #764ba2;
+            animation: pulse 2s infinite;
+        }
+
+        .hero h1 i:last-child {
+            animation-delay: 1s;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.15);
+            }
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.85em;
+            margin-bottom: 12px;
+        }
+
+        .hero h2 {
+            font-size: 1.2em;
+            color: #764ba2;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .hero p {
+            font-size: 0.95em;
+            color: #666;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .section-title {
+            font-size: 1.4em;
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 50%;
+            transform: translateX(50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        html[dir="ltr"] .section-title::after {
+            right: auto;
+            left: 50%;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .service-card {
+            padding: 22px 15px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .service-card i {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .service-card h3 {
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .service-card p {
+            color: #555;
+            font-size: 0.85em;
+            line-height: 1.6;
+        }
+
+        .service-card.blue {
+            background: linear-gradient(135deg, #eef2ff 0%, #dbe4ff 100%);
+            border-top: 4px solid #667eea;
+        }
+
+        .service-card.blue i,
+        .service-card.blue h3 {
+            color: #5a67d8;
+        }
+
+        .service-card.blue:hover {
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.35);
+        }
+
+        .service-card.green {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-top: 4px solid #10b981;
+        }
+
+        .service-card.green i,
+        .service-card.green h3 {
+            color: #059669;
+        }
+
+        .service-card.green:hover {
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
+        }
+
+        .service-card.orange {
+            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+            border-top: 4px solid #f97316;
+        }
+
+        .service-card.orange i,
+        .service-card.orange h3 {
+            color: #ea580c;
+        }
+
+        .service-card.orange:hover {
+            box-shadow: 0 8px 20px rgba(249, 115, 22, 0.35);
+        }
+
+        .benefits-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        /* مزایا چند رنگی */
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border-inline-start: 4px solid transparent;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .benefit-item:hover {
+            transform: translateY(-3px);
+        }
+
+        .benefit-item i {
+            font-size: 22px;
+            margin-inline-end: 12px;
+        }
+
+        .benefit-item span {
+            font-size: 0.9em;
+            color: #444;
+            font-weight: 600;
+        }
+
+        .benefit-item.c-green {
+            background: #ecfdf5;
+            border-color: #10b981;
+        }
+
+        .benefit-item.c-green i {
+            color: #10b981;
+        }
+
+        .benefit-item.c-green:hover {
+            box-shadow: 0 6px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .benefit-item.c-orange {
+            background: #fff7ed;
+            border-color: #f97316;
+        }
+
+        .benefit-item.c-orange i {
+            color: #f97316;
+        }
+
+        .benefit-item.c-orange:hover {
+            box-shadow: 0 6px 15px rgba(249, 115, 22, 0.3);
+        }
+
+        .benefit-item.c-pink {
+            background: #fdf2f8;
+            border-color: #ec4899;
+        }
+
+        .benefit-item.c-pink i {
+            color: #ec4899;
+        }
+
+        .benefit-item.c-pink:hover {
+            box-shadow: 0 6px 15px rgba(236, 72, 153, 0.3);
+        }
+
+        .benefit-item.c-purple {
+            background: #f5f3ff;
+            border-color: #8b5cf6;
+        }
+
+        .benefit-item.c-purple i {
+            color: #8b5cf6;
+        }
+
+        .benefit-item.c-purple:hover {
+            box-shadow: 0 6px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .contact-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .contact-section .section-title {
+            color: white;
+        }
+
+        .contact-section .section-title::after {
+            background: white;
+        }
+
+        .contact-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .contact-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: white;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            min-width: 190px;
+        }
+
+        .contact-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            inset-inline-start: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: inset-inline-start 0.4s ease;
+        }
+
+        .contact-btn:hover::before {
+            inset-inline-start: 100%;
+        }
+
+        .contact-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .contact-btn i {
+            font-size: 1.4em;
+        }
+
+        .contact-btn span {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            line-height: 1.3;
+        }
+
+        .contact-btn span .label {
+            font-size: 0.75em;
+            opacity: 0.85;
+            font-weight: 400;
+        }
+
+        .contact-btn span .value {
+            font-size: 1em;
+            direction: ltr;
+        }
+
+        .btn-call {
+            background: linear-gradient(135deg, #34c759 0%, #28a745 100%);
+        }
+
+        .btn-sms {
+            background: linear-gradient(135deg, #5ac8fa 0%, #007aff 100%);
+        }
+
+        .btn-email {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        }
+
+        .btn-whatsapp {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+        }
+
+        .btn-telegram {
+            background: linear-gradient(135deg, #0088cc 0%, #006699 100%);
+        }
+
+        .btn-bale {
+            background: linear-gradient(135deg, #00a8e8 0%, #0077b6 100%);
+        }
+
+        .cta-note {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9em;
+            opacity: 0.95;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 1.4em;
+                gap: 8px;
+            }
+
+            .hero h2 {
+                font-size: 1.1em;
+            }
+
+            .hero p {
+                font-size: 0.9em;
+            }
+
+            .section {
+                padding: 20px 15px;
+            }
+
+            .section-title {
+                font-size: 1.3em;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .benefits-list {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-btn {
+                min-width: 160px;
+                flex: 1 1 45%;
+            }
+
+            body {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .contact-btn {
+                flex: 1 1 100%;
+            }
+
+            .hero h1 i {
+                font-size: 0.7em;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h2>افزونه تستی من</h2>
-    <button onclick="insertText()">درج متن در ورد</button>
+    <div class="container">
+        <!-- نوار بالا: دکمه تغییر زبان -->
+        <div class="top-bar">
+            <button id="langToggle" class="lang-toggle">
+                <i class="fas fa-globe"></i>
+                <span id="langLabel">English</span>
+            </button>
+        </div>
+
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1>
+                <i class="fas fa-graduation-cap"></i>
+                <span data-fa="ارائه خدمات جامع فارغ‌التحصیلی" data-en="Comprehensive Graduation Services">ارائه خدمات جامع فارغ‌التحصیلی</span>
+                <i class="fas fa-graduation-cap"></i>
+            </h1>
+            <div class="hero-badge">
+                <i class="fas fa-globe"></i>
+                <span data-fa="ارائه خدمات به دانشجویان ایرانی و بین‌الملل" data-en="Serving Iranian & International Students">ارائه خدمات به دانشجویان ایرانی و بین‌الملل</span>
+            </div>
+            <h2 data-fa="فارغ‌التحصیلی بدون دغدغه، با ما!" data-en="Graduation Without Worries, With Us!">فارغ‌التحصیلی بدون دغدغه، با ما!</h2>
+            <p data-fa="آیا درگیر کارهای اداری فارغ‌التحصیلی هستید و وقت کافی برای پیگیری ندارید؟ ما اینجاییم تا مسیر فارغ‌التحصیلی شما را هموار کنیم." data-en="Struggling with graduation paperwork and short on time to follow up? We are here to smooth your path to graduation.">آیا درگیر کارهای اداری فارغ‌التحصیلی هستید و وقت کافی برای پیگیری ندارید؟ ما اینجاییم تا مسیر فارغ‌التحصیلی شما را هموار کنیم.</p>
+        </div>
+
+        <!-- Services Section -->
+        <div class="section">
+            <h2 class="section-title" data-fa="خدمات ما" data-en="Our Services">خدمات ما</h2>
+            <div class="services-grid">
+                <div class="service-card blue">
+                    <i class="fas fa-file-alt"></i>
+                    <h3 data-fa="قالب‌بندی پایان‌نامه و رساله" data-en="Thesis & Dissertation Formatting">قالب‌بندی پایان‌نامه و رساله</h3>
+                    <p data-fa="قالب‌بندی پایان‌نامه و رساله با کمترین اصلاحیه ممکن از سمت دانشگاه شیراز" data-en="Thesis & dissertation formatting with minimal corrections required by Shiraz University">قالب‌بندی پایان‌نامه و رساله با کمترین اصلاحیه ممکن از سمت دانشگاه شیراز</p>
+                </div>
+                <div class="service-card green">
+                    <i class="fas fa-tasks"></i>
+                    <h3 data-fa="امور اداری" data-en="Administrative Affairs">امور اداری</h3>
+                    <p data-fa="انجام کلیه امور اداری فراغت از تحصیل دانشگاه شیراز" data-en="Handling all graduation administrative affairs at Shiraz University">انجام کلیه امور اداری فراغت از تحصیل دانشگاه شیراز</p>
+                </div>
+                <div class="service-card orange">
+                    <i class="fas fa-certificate"></i>
+                    <h3 data-fa="مدرک تحصیلی" data-en="Degree Certificate">مدرک تحصیلی</h3>
+                    <p data-fa="اخذ مدرک موقت، آزادسازی مدرک و ترجمه مدرک" data-en="Obtaining the temporary certificate, degree release & official translation">اخذ مدرک موقت، آزادسازی مدرک و ترجمه مدرک</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Benefits Section -->
+        <div class="section">
+            <h2 class="section-title" data-fa="مزایای خدمات ما" data-en="Our Advantages">مزایای خدمات ما</h2>
+            <div class="benefits-list">
+                <div class="benefit-item c-green">
+                    <i class="fas fa-user-graduate"></i>
+                    <span data-fa="آشنایی کامل با فرآیندهای اداری دانشگاه شیراز" data-en="Full familiarity with Shiraz University's administrative processes">آشنایی کامل با فرآیندهای اداری دانشگاه شیراز</span>
+                </div>
+                <div class="benefit-item c-orange">
+                    <i class="fas fa-clock"></i>
+                    <span data-fa="صرفه‌جویی در وقت و انرژی شما" data-en="Saves your time & energy">صرفه‌جویی در وقت و انرژی شما</span>
+                </div>
+                <div class="benefit-item c-pink">
+                    <i class="fas fa-comments"></i>
+                    <span data-fa="پشتیبانی و مشاوره رایگان" data-en="Free support & consultation">پشتیبانی و مشاوره رایگان</span>
+                </div>
+                <div class="benefit-item c-purple">
+                    <i class="fas fa-globe"></i>
+                    <span data-fa="ارائه خدمات به دانشجویان ایرانی و بین‌الملل" data-en="Services for Iranian & international students">ارائه خدمات به دانشجویان ایرانی و بین‌الملل</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Section -->
+        <div class="section contact-section">
+            <h2 class="section-title" data-fa="تماس با ما" data-en="Contact Us">تماس با ما</h2>
+            <div class="contact-buttons">
+                <a href="tel:09178784724" class="contact-btn btn-call">
+                    <i class="fas fa-phone"></i>
+                    <span>
+                        <span class="label" data-fa="تماس تلفنی" data-en="Phone Call">تماس تلفنی</span>
+                        <span class="value" data-fa="۰۹۱۷۸۷۸۴۷۲۴" data-en="+98 917 878 4724">۰۹۱۷۸۷۸۴۷۲۴</span>
+                    </span>
+                </a>
+
+                <a href="sms:09178784724" class="contact-btn btn-sms">
+                    <i class="fas fa-comment-dots"></i>
+                    <span>
+                        <span class="label" data-fa="پیامک" data-en="SMS">پیامک</span>
+                        <span class="value" data-fa="۰۹۱۷۸۷۸۴۷۲۴" data-en="+98 917 878 4724">۰۹۱۷۸۷۸۴۷۲۴</span>
+                    </span>
+                </a>
+
+                <a href="mailto:virayeshu@gmail.com" class="contact-btn btn-email">
+                    <i class="fas fa-envelope"></i>
+                    <span>
+                        <span class="label" data-fa="ایمیل" data-en="Email">ایمیل</span>
+                        <span class="value">virayeshu@gmail.com</span>
+                    </span>
+                </a>
+
+                <a href="https://wa.me/09178784724" class="contact-btn btn-whatsapp">
+                    <i class="fab fa-whatsapp"></i>
+                    <span>
+                        <span class="label" data-fa="واتساپ" data-en="WhatsApp">واتساپ</span>
+                        <span class="value" data-fa="پیام در واتساپ" data-en="Chat on WhatsApp">پیام در واتساپ</span>
+                    </span>
+                </a>
+
+                <a href="https://t.me/09178784724" class="contact-btn btn-telegram">
+                    <i class="fab fa-telegram-plane"></i>
+                    <span>
+                        <span class="label" data-fa="تلگرام" data-en="Telegram">تلگرام</span>
+                        <span class="value" data-fa="پیام در تلگرام" data-en="Chat on Telegram">پیام در تلگرام</span>
+                    </span>
+                </a>
+
+                <a href="https://ble.ir/09178784724" class="contact-btn btn-bale">
+                    <i class="fas fa-comment"></i>
+                    <span>
+                        <span class="label" data-fa="بله" data-en="Bale">بله</span>
+                        <span class="value" data-fa="پیام در بله" data-en="Chat on Bale">پیام در بله</span>
+                    </span>
+                </a>
+            </div>
+            <p class="cta-note" data-fa="از هر راه ارتباطی که راحت‌ترید با ما در ارتباط باشید" data-en="Reach us through whichever channel is most convenient for you">از هر راه ارتباطی که راحت‌ترید با ما در ارتباط باشید</p>
+        </div>
+    </div>
+
+    <script>
+        // ---------- تغییر زبان فارسی / انگلیسی ----------
+        let currentLang = 'fa';
+        const langToggle = document.getElementById('langToggle');
+        const langLabel = document.getElementById('langLabel');
+
+        function applyLang(lang) {
+            currentLang = lang;
+            document.documentElement.setAttribute('dir', lang === 'fa' ? 'rtl' : 'ltr');
+            document.documentElement.setAttribute('lang', lang);
+            document.querySelectorAll('[data-fa]').forEach(el => {
+                el.textContent = el.getAttribute('data-' + lang);
+            });
+            document.title = lang === 'fa'
+                ? 'خدمات جامع فارغ‌التحصیلی'
+                : 'Comprehensive Graduation Services';
+            langLabel.textContent = lang === 'fa' ? 'English' : 'فارسی';
+        }
+
+        langToggle.addEventListener('click', () => {
+            applyLang(currentLang === 'fa' ? 'en' : 'fa');
+        });
+
+        // ---------- انیمیشن هنگام اسکرول ----------
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        document.querySelectorAll('.section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // ---------- افکت کلیک کارت‌ها ----------
+        document.querySelectorAll('.service-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.transform = 'scale(0.97)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 200);
+            });
+        });
+
+        document.querySelectorAll('.contact-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+            });
+        });
+    </script>
 </body>
 </html>
