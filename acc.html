@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="fa" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>دفترچهٔ روزانه تراکنش‌ها</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f3f5f7; --card:#fff; --line:#e3e7ea; --ink:#23303a; --muted:#7b8794;
+    --accent:#0d9488; --accent-dark:#0b7a70;
+    --red:#d64545; --red-soft:#fdeeee; --today-soft:#fff7e0; --gold:#e8a722;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:'Vazirmatn',Tahoma,sans-serif; font-size:14.5px; color:var(--ink); background:var(--bg); }
+  .page{ max-width:1000px; margin:0 auto; padding:16px 14px 40px; }
+
+  .topbar{ display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+  .topbar h1{ margin:0; font-size:1.4rem; font-weight:700; }
+  .topbar h1 b{ color:var(--accent); }
+  .today-full{ color:var(--muted); font-size:.85rem; }
+
+  .card{ background:var(--card); border:1px solid var(--line); border-radius:8px; }
+
+  .toolbar{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+  .btn{
+    font:inherit; font-size:.8rem; font-weight:600;
+    background:#fff; color:#37474f; border:1px solid #cfd8dc;
+    border-radius:6px; padding:6px 12px; cursor:pointer;
+  }
+  .btn:hover{ border-color:var(--accent); color:var(--accent-dark); }
+  label.btn{ display:inline-block; }
+
+  /* نمودار */
+  .chart-card{ padding:12px 14px; margin-bottom:14px; }
+  .chart-head{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:4px; }
+  .chart-head h2{ margin:0; font-size:.9rem; font-weight:700; }
+  .chart-head span{ font-size:.7rem; color:var(--muted); }
+  #chart{ width:100%; height:280px; cursor:pointer; }
+  .balloon-btn.active{ background:var(--accent); border-color:var(--accent); color:#fff; }
+
+  /* جدول */
+  #wrap{
+    position:relative;
+    height:78vh; min-height:520px;
+    overflow:auto; overflow-anchor:none;
+    background:#fff; border:1px solid var(--line); border-radius:8px;
+  }
+  #wrap::-webkit-scrollbar{ width:10px; height:10px; }
+  #wrap::-webkit-scrollbar-thumb{ background:#c4cdd2; border-radius:8px; border:2px solid #fff; }
+  #wrap::-webkit-scrollbar-thumb:hover{ background:var(--accent); }
+
+  table{ border-collapse:separate; border-spacing:0; width:100%; min-width:660px; }
+  th, td{
+    border-bottom:1px solid var(--line);
+    border-right:1px solid var(--line);
+    padding:3px;
+    vertical-align:top;
+    text-align:center;
+    background:#fff;
+  }
+  th:first-child, td:first-child{ border-right:none; }
+
+  thead th{
+    position:sticky;
+    top:0;
+    z-index:10;
+    background:#f4f7f6;
+    color:#3d4a52;
+    font-size:.8rem;
+    height:30px;
+    border-bottom:2px solid var(--accent);
+  }
+
+  /* عرض ستون‌ها */
+  thead th:nth-child(1){ width:120px; }
+  thead th:nth-child(2){ width:130px; }
+  thead th:nth-child(3){ width:220px; }
+  thead th:nth-child(4){ width:30px;  }
+  thead th:nth-child(5){ width:90px;  }
+  thead th:nth-child(6){ width:700px; }
+
+  tbody tr.day td{ cursor:pointer; }
+  tbody tr.day:hover td{ background:#f5faf9; }
+  tbody tr.day.friday td{ background:var(--red-soft); }
+  tbody tr.day.friday:hover td{ background:#fbe2e2; }
+  tbody tr.day.today td{ background:var(--today-soft); }
+  tbody tr.day.today:hover td{ background:#fdeec2; }
+  tbody tr.day-first.today td.date-col{ box-shadow:inset 4px 0 0 var(--gold); }
+
+  input{
+    font:inherit; font-size:.85rem; color:var(--ink);
+    width:95%; padding:2px 4px;
+    border:1px solid transparent; border-radius:4px;
+    background:transparent;
+  }
+  input:hover{ background:rgba(13,148,136,.07); }
+  input:focus{ outline:none; background:#fff; border-color:var(--accent); }
+  input.title, input.m-title{ direction:rtl; text-align:right; }
+  input[type=number]{ font-variant-numeric:tabular-nums; -moz-appearance:textfield; appearance:textfield; }
+  input::-webkit-outer-spin-button, input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+
+  /* سلول تاریخ */
+  .date-col{ vertical-align:top; padding:4px; min-width:100px; }
+  .datebox{ display:flex; align-items:center; justify-content:flex-start; gap:6px; flex-wrap:nowrap; direction:rtl; }
+  .weekday{ font-size:.7rem; font-weight:700; color:#63756a; white-space:nowrap; }
+  .dateval{ font-size:.85rem; font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  tr.friday .weekday, tr.friday .dateval{ color:var(--red); }
+
+  .date-col .add-tx{
+    flex:0 0 auto;
+    width:20px; height:20px; border-radius:50%;
+    border:1px dashed rgba(13,148,136,.55); background:transparent;
+    color:var(--accent-dark); font-size:.9rem; line-height:1;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .date-col .add-tx:hover{ background:var(--accent); color:#fff; border-style:solid; }
+
+  td.del{ width:1%; }
+  .del-tx{
+    font:inherit; line-height:1; border:none; cursor:pointer;
+    background:transparent; color:#b3b8ae; font-size:1rem;
+    border-radius:50%; width:18px; height:18px;
+  }
+  .del-tx:hover{ background:#fdecea; color:var(--red); }
+
+  td.daily, td.balance{ font-weight:700; font-variant-numeric:tabular-nums; font-size:.9rem; white-space:nowrap; vertical-align:middle; }
+  .pos{ color:var(--accent-dark); } .neg{ color:var(--red); }
+
+  #ledger.hide-tx .txcol{ display:none; }
+
+  .hint{ font-size:.72rem; color:var(--muted); margin-top:12px; line-height:2; }
+
+  /* ── مدال ── */
+  #overlay{
+    position:fixed; inset:0; z-index:50;
+    background:rgba(25,35,45,.45);
+    display:flex; align-items:center; justify-content:center;
+    padding:16px;
+  }
+  #overlay[hidden]{ display:none; }
+  .modal{
+    background:#fff; border-radius:10px; width:min(300px,100%);
+    box-shadow:0 10px 40px rgba(20,35,50,.25);
+  }
+  .modal-head{ display:flex; align-items:center; justify-content:space-between; gap:6px; padding:10px 12px; border-bottom:1px solid var(--line); }
+  .modal-head h3{ margin:0; font-size:.85rem; }
+  .modal-close{
+    border:none; background:transparent; color:var(--muted);
+    font-size:1.2rem; line-height:1; width:24px; height:24px;
+    border-radius:50%; cursor:pointer; flex:0 0 auto;
+  }
+  .modal-close:hover{ background:#fdecea; color:var(--red); }
+  .modal-body{ padding:10px 12px 14px; max-height:60vh; overflow:auto; }
+
+  .modal-list{ margin-bottom:10px; }
+  .modal-item{
+    display:flex;
+    gap:4px;
+    align-items:center;
+    margin-bottom:4px;
+  }
+  .modal-item input{ flex:1; }
+  .modal-item .m-amount{ flex:0 0 80px; }
+  .modal-item .del-tx{ flex:0 0 auto; }
+
+  .modal-add{ width:100%; font-size:.78rem; padding:6px 10px; }
+  .modal-foot{ display:flex; justify-content:space-between; margin-top:10px; font-size:.8rem; }
+  .modal-empty{ color:var(--muted); font-size:.75rem; padding:6px 0; }
+
+  /* ── واکنش‌گرایی ── */
+  @media (max-width: 720px){
+    .page{ padding:10px 8px 30px; }
+    .topbar h1{ font-size:1.2rem; }
+    .btn{ padding:5px 10px; font-size:.76rem; }
+    #chart{ height:220px; }
+    thead th:nth-child(1){ width:110px; }
+    thead th:nth-child(2){ width:100px; }
+    thead th:nth-child(3){ width:160px; }
+    thead th:nth-child(4){ width:28px;  }
+    thead th:nth-child(5){ width:85px;  }
+    thead th:nth-child(6){ width:520px; }
+  }
+  @media (max-width: 480px){
+    .topbar{ flex-direction:column; gap:2px; }
+    #chart{ height:200px; }
+    input{ font-size:.8rem; }
+    .hint{ font-size:.66rem; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="topbar">
+    <h1>دفترچهٔ <b>روزانه</b></h1>
+    <span class="today-full" id="todayFull"></span>
+  </div>
+
+  <div class="toolbar">
+    <button type="button" class="btn" id="toggleTx"></button>
+    <button type="button" class="btn" id="exportBtn">⤓ خروجی JSON</button>
+    <label class="btn" for="importFile">⤒ ورودی JSON</label>
+    <input type="file" id="importFile" accept=".json,application/json" hidden>
+  </div>
+
+  <div class="card chart-card" id="chartCard">
+    <div class="chart-head">
+      <h2>نمودار ماندهٔ روزانه</h2>
+      <button type="button" class="btn balloon-btn" id="balloonBtn"
+              title="نمایش عنوان تراکنش‌ها روی نقاط نمودار">🎈 تراکنش‌ها روی نمودار</button>
+      <span>اسکرول = زوم · درگ = جابه‌جایی · کلیک روی نمودار = پرش به همان روز در جدول</span>
+    </div>
+    <div id="chart"></div>
+  </div>
+
+  <div id="wrap">
+    <table id="ledger">
+      <thead>
+        <tr>
+          <th>تاریخ</th>
+          <th class="txcol">مبلغ</th>
+          <th class="txcol">عنوان</th>
+          <th class="txcol"></th>
+          <th>جمع روز</th>
+          <th>مانده</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <p class="hint">
+    کلیک روی هر سطر = مدال تراکنش‌های همان روز · کلیک روی نمودار = اسکرول جدول به بالای همان روز ·
+    «+» کنار تاریخ هر روز = تراکنش جدید · دکمهٔ 🎈 = نمایش عنوان تراکنش‌ها روی نمودار ·
+    مبلغ منفی = هزینه · Enter = تراکنش بعدی · جمعه‌ها قرمز · داده‌ها در localStorage ذخیره می‌شوند.
+  </p>
+</div>
+
+<!-- مدال -->
+<div id="overlay" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalTitle"></h3>
+      <button type="button" class="modal-close" title="بستن">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-list" id="modalTx"></div>
+      <div class="modal-empty" id="modalEmpty" hidden>هنوز تراکنشی برای این روز ثبت نشده است.</div>
+      <button type="button" class="btn modal-add">+ تراکنش جدید</button>
+      <div class="modal-foot">
+        <span>جمع این روز:</span><b id="modalSum">۰</b>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js" 
+        onerror="window.echartsError=true"></script>
+
+<script>
+const tbody = document.querySelector('#ledger tbody');
+const wrap  = document.getElementById('wrap');
+const table = document.getElementById('ledger');
+const overlay    = document.getElementById('overlay');
+const modalTitle = document.getElementById('modalTitle');
+const modalSum   = document.getElementById('modalSum');
+const modalEmpty = document.getElementById('modalEmpty');
+let modalDay = null;
+
+/* ---------- localStorage ---------- */
+const LS_TX = 'ledger:tx', LS_HIDE = 'ledger:hideTx', LS_BALLOONS = 'ledger:balloons';
+let store = {};
+try { store = JSON.parse(localStorage.getItem(LS_TX)) || {}; } catch { store = {}; }
+
+function persist(){
+  const clean = {};
+  for (const [k, v] of Object.entries(store)){
+    const arr = (v || []).filter(t => t.a !== 0 || (t.t || '').trim() !== '');
+    if (arr.length) clean[k] = arr;
+  }
+  localStorage.setItem(LS_TX, JSON.stringify(clean));
+}
+
+/* ---------- تاریخ شمسی ---------- */
+const jdf = new Intl.DateTimeFormat('fa-IR-u-nu-latn',
+  { year:'numeric', month:'2-digit', day:'2-digit' });
+
+function toShamsi(date){
+  const parts = jdf.formatToParts(date);
+  const g = t => parts.find(p => p.type === t).value;
+  return `${g('year')}/${g('month')}/${g('day')}`;
+}
+function addDays(d, n){ const x = new Date(d); x.setDate(x.getDate()+n); return x; }
+const faDigits = s => String(s).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+
+const WEEKDAYS_FA = ['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه','شنبه'];
+function setWeekday(tr, gDate){
+  const wd = gDate.getDay();
+  tr.querySelector('.weekday').textContent = WEEKDAYS_FA[wd];
+  tr.classList.toggle('friday', wd === 5);
+}
+
+const today = new Date(); today.setHours(0,0,0,0);
+let firstDate = today, lastDate = today, todayRow;
+
+document.getElementById('todayFull').textContent =
+  'امروز: ' + new Intl.DateTimeFormat('fa-IR', { dateStyle:'full' }).format(new Date());
+
+/* ---------- دکمهٔ بالون‌ها ---------- */
+let showBalloons = localStorage.getItem(LS_BALLOONS) === '1';
+const balloonBtn = document.getElementById('balloonBtn');
+function applyBalloonBtn(){ balloonBtn.classList.toggle('active', showBalloons); }
+balloonBtn.onclick = () => {
+  showBalloons = !showBalloons;
+  localStorage.setItem(LS_BALLOONS, showBalloons ? '1' : '0');
+  applyBalloonBtn();
+  refreshChart();
+};
+applyBalloonBtn();
+
+function balloonData(dates, vals){
+  if (!showBalloons) return [];
+  const idxOf = new Map(dates.map((d, i) => [d, i]));
+  const pts = [];
+  for (const [key, txs] of Object.entries(store)){
+    const i = idxOf.get(key);
+    if (i === undefined) continue;
+    const real = (txs || []).filter(t => t.a !== 0 || (t.t || '').trim() !== '');
+    if (!real.length) continue;
+    const sum = real.reduce((s, t) => s + (t.a || 0), 0);
+    const titles = real.map(t => (t.t || '').trim()).filter(Boolean).join('، ');
+    let short = titles || fmt(sum);
+    if (short.length > 18) short = short.slice(0, 17) + '…';
+    pts.push({
+      coord:[i, vals[i]],
+      name: titles || 'بدون عنوان',
+      value: short,
+      dateStr: key,
+      sumStr: fmt(sum)
+    });
+  }
+  return pts;
+}
+
+/* ---------- نمودار ---------- */
+let chart = null;
+let chartDates = [];
+
+if (window.echarts && !window.echartsError){
+  try {
+    chart = echarts.init(document.getElementById('chart'));
+    chart.setOption({
+      animation:false,
+      grid:{ left:70, right:16, top:50, bottom:58 },
+      tooltip:{
+        trigger:'axis',
+        textStyle:{ fontFamily:"'Vazirmatn', Tahoma", fontSize:12 },
+        formatter: p => `${faDigits(p[0].name)}<br>مانده: <b>${(+p[0].value).toLocaleString('fa-IR')}</b>`
+      },
+      toolbox:{
+        right:8, top:0, iconStyle:{ borderColor:'#8aa0a8' },
+        feature:{
+          dataZoom:{ yAxisIndex:'none', title:{ zoom:'زوم', back:'بازگشت زوم' } },
+          restore:{ title:'بازنشانی' },
+          saveAsImage:{ title:'ذخیرهٔ تصویر', name:'balance-chart' }
+        }
+      },
+      xAxis:{
+        type:'category', boundaryGap:false, data:[],
+        axisLabel:{ fontFamily:"'Vazirmatn', Tahoma", fontSize:10, rotate:45, formatter: v => faDigits(v) },
+        axisTick:{ alignWithLabel:true }
+      },
+      yAxis:{
+        type:'value',
+        max: function(value) {
+          if (value.max > 0) return Math.ceil(value.max * 1.3);
+          return null;
+        },
+        axisLabel:{ fontFamily:"'Vazirmatn', Tahoma", formatter: v => v.toLocaleString('fa-IR') },
+        splitLine:{ lineStyle:{ color:'#eef1f3' } }
+      },
+      dataZoom:[
+        { type:'inside', xAxisIndex:0, zoomOnMouseWheel:true, moveOnMouseMove:true, moveOnMouseWheel:false },
+        { type:'slider', xAxisIndex:0, height:18, bottom:6,
+          textStyle:{ fontFamily:"'Vazirmatn', Tahoma" }, labelFormatter: v => faDigits(Math.round(v)) }
+      ],
+      series:[{
+        name:'مانده', type:'line', data:[],
+        showSymbol:true, symbolSize:6,
+        lineStyle:{ width:2.5, color:'#0d9488' },
+        itemStyle:{ color:'#0d9488' },
+        label:{
+          show:true, position:'top', distance:6,
+          fontFamily:"'Vazirmatn', Tahoma", fontSize:10, fontWeight:600, color:'#0b7a70',
+          formatter: p => (+p.value).toLocaleString('fa-IR')
+        },
+        labelLayout:{ hideOverlap:true },
+        areaStyle:{ color: new echarts.graphic.LinearGradient(0,0,0,1,[
+          { offset:0, color:'rgba(13,148,136,.28)' },
+          { offset:1, color:'rgba(13,148,136,.02)' }
+        ])},
+        markLine:{
+          silent:true, symbol:'none', label:{ show:false },
+          lineStyle:{ type:'dashed', color:'#b0b8bf' },
+          data:[{ yAxis:0 }]
+        },
+        markPoint:{
+          data:[],
+          symbol:'pin', symbolSize:42,
+          itemStyle:{ color:'#e8a722', borderColor:'#c07f10', borderWidth:1 },
+          label:{
+            show:true, position:'top', distance:10,
+            backgroundColor:'#fff', borderColor:'#e8a722', borderWidth:1,
+            borderRadius:6, padding:[3,6],
+            color:'#20303a', fontSize:10, fontWeight:600,
+            fontFamily:"'Vazirmatn', Tahoma",
+            formatter: p => p.value
+          },
+          tooltip:{
+            formatter: p =>
+              `<div style="direction:rtl">${faDigits(p.data.dateStr)}<br><b>${p.name}</b><br>جمع روز: ${p.data.sumStr}</div>`
+          }
+        }
+      }]
+    });
+
+    function chartLayout(){
+      const small = window.innerWidth < 640;
+      chart.setOption({
+        grid:{ left: small ? 48 : 70, right: small ? 10 : 16, top: small ? 40 : 50, bottom: small ? 50 : 58 },
+        xAxis:{ axisLabel:{ rotate: small ? 60 : 45, fontSize: small ? 9 : 10 } },
+        series:[{ label:{ fontSize: small ? 9 : 10 } }]
+      });
+    }
+    chartLayout();
+    window.addEventListener('resize', () => { chart.resize(); chartLayout(); });
+
+    let downPt = null;
+    chart.getZr().on('mousedown', e => { downPt = [e.offsetX, e.offsetY]; });
+    chart.getZr().on('click', e => {
+      if (downPt && Math.hypot(e.offsetX - downPt[0], e.offsetY - downPt[1]) > 6) return;
+      const pt = [e.offsetX, e.offsetY];
+      if (!chart.containPixel('grid', pt)) return;
+      const xVal = chart.convertFromPixel('grid', pt)[0];
+      const i = Math.max(0, Math.min(Math.round(xVal), chartDates.length - 1));
+      if (chartDates[i]) scrollToDayRow(chartDates[i]);
+    });
+  } catch (err) {
+    console.warn('ECharts initialization failed:', err);
+    document.getElementById('chartCard').style.display = 'none';
+  }
+} else {
+  document.getElementById('chartCard').style.display = 'none';
+}
+
+function scrollToDayRow(dateKey){
+  const row = tbody.querySelector(`tr.day-first[data-key="${dateKey}"]`);
+  if (!row) return;
+  const top = row.offsetTop - 10;
+  wrap.scrollTo({ top: Math.max(0, top), behavior:'smooth' });
+  row.classList.remove('flash');
+  void row.offsetWidth;
+  row.classList.add('flash');
+  setTimeout(() => row.classList.remove('flash'), 1400);
+}
+
+function refreshChart(){
+  if (!chart) return;
+  const dates = [], vals = [];
+  let b = 0;
+  const firstRows = tbody.querySelectorAll('tr.day-first');
+  firstRows.forEach(firstRow => {
+    const key = firstRow.dataset.key;
+    const dayRows = tbody.querySelectorAll(`tr.day[data-key="${key}"]`);
+    let s = 0;
+    dayRows.forEach(r => {
+      const a = r.querySelector('.amount');
+      if (a) s += parseFloat(a.value) || 0;
+    });
+    b += s;
+    dates.push(key);
+    vals.push(b);
+  });
+  chartDates = dates;
+  chart.setOption({
+    xAxis:{ data:dates },
+    series:[{ data:vals, markPoint:{ data: balloonData(dates, vals) } }]
+  });
+}
+
+/* ---------- ساخت سطرهای روز (با rowspan) ---------- */
+function makeDayRows(date){
+  const key = toShamsi(date);
+  const isToday = date.getTime() === today.getTime();
+  const txs = store[key] || [];
+  const n = Math.max(1, txs.length);
+  const rows = [];
+
+  for (let i = 0; i < n; i++){
+    const tr = document.createElement('tr');
+    tr.className = 'day';
+    tr.dataset.key = key;
+    tr.dataset.gdate = date.getTime();
+    if (isToday) tr.classList.add('today');
+    if (n > 1 || txs.length === 0) tr.classList.toggle('friday', date.getDay() === 5);
+
+    if (i === 0){
+      tr.classList.add('day-first');
+      tr.innerHTML = `
+        <td rowspan="${n}" class="date-col">
+          <div class="datebox">
+            <button type="button" class="add-tx" title="افزودن تراکنش">+</button>
+            <span class="weekday"></span>
+            <span class="dateval">${key}</span>
+          </div>
+        </td>
+        <td class="txcol"><input type="number" step="any" class="amount" placeholder="مبلغ"></td>
+        <td class="txcol"><input class="title" placeholder="عنوان"></td>
+        <td class="del txcol"><button type="button" class="del-tx" title="حذف">×</button></td>
+        <td rowspan="${n}" class="daily">۰</td>
+        <td rowspan="${n}" class="balance">۰</td>`;
+      setWeekday(tr, date);
+    } else {
+      tr.innerHTML = `
+        <td class="txcol"><input type="number" step="any" class="amount" placeholder="مبلغ"></td>
+        <td class="txcol"><input class="title" placeholder="عنوان"></td>
+        <td class="del txcol"><button type="button" class="del-tx" title="حذف">×</button></td>`;
+    }
+
+    if (i < txs.length){
+      const tx = txs[i];
+      const a = tr.querySelector('.amount');
+      const t = tr.querySelector('.title');
+      if (tx.a !== 0) a.value = tx.a;
+      t.value = tx.t || '';
+    }
+
+    rows.push(tr);
+  }
+
+  return rows;
+}
+
+function syncDayGroup(key){
+  const oldRows = tbody.querySelectorAll(`tr.day[data-key="${key}"]`);
+  if (oldRows.length === 0) return;
+  const gdate = new Date(parseInt(oldRows[0].dataset.gdate));
+  const newRows = makeDayRows(gdate);
+  oldRows[0].before(...newRows);
+  oldRows.forEach(r => r.remove());
+}
+
+function addTxToDay(day, focus = true){
+  const key = day.dataset.key;
+  if (!store[key]) store[key] = [];
+  store[key].push({ a:0, t:'' });
+  persist();
+  syncDayGroup(key);
+  recalc();
+  if (focus){
+    const list = tbody.querySelectorAll(`tr.day[data-key="${key}"] .amount`);
+    list[list.length-1]?.focus();
+  }
+}
+
+function removeTx(day, idx){
+  const key = day.dataset.key;
+  (store[key] || []).splice(idx, 1);
+  if (store[key] && !store[key].length) delete store[key];
+  persist();
+  syncDayGroup(key);
+  recalc();
+}
+
+/* ---------- مدال ---------- */
+function openModal(day){
+  modalDay = day;
+  const firstRow = tbody.querySelector(`tr.day-first[data-key="${day.dataset.key}"]`) || day;
+  const wd = firstRow.querySelector('.weekday').textContent;
+  modalTitle.textContent = `${wd}، ${faDigits(day.dataset.key)}`;
+  renderModalRows();
+  overlay.hidden = false;
+  document.body.style.overflow = 'hidden';
+  overlay.querySelector('.m-amount')?.focus();
+}
+function closeModal(){
+  overlay.hidden = true;
+  modalDay = null;
+  document.body.style.overflow = '';
+}
+function renderModalRows(){
+  const txs = store[modalDay.dataset.key] || [];
+  const list = document.getElementById('modalTx');
+  list.innerHTML = '';
+  txs.forEach((tx, i) => {
+    const item = document.createElement('div');
+    item.className = 'modal-item';
+    item.dataset.idx = i;
+    item.innerHTML = `
+      <input type="number" step="any" class="m-amount" placeholder="مبلغ">
+      <input class="m-title" placeholder="عنوان">
+      <button type="button" class="del-tx" title="حذف">×</button>`;
+    const a = item.querySelector('.m-amount'), t = item.querySelector('.m-title');
+    if (tx.a !== 0) a.value = tx.a;
+    t.value = tx.t || '';
+    list.appendChild(item);
+  });
+  modalEmpty.hidden = txs.length > 0;
+  updateModalSum();
+}
+function updateModalSum(){
+  const sum = (store[modalDay.dataset.key] || []).reduce((s, t) => s + (t.a || 0), 0);
+  modalSum.textContent = fmt(sum);
+  modalSum.classList.toggle('pos', sum > 0);
+  modalSum.classList.toggle('neg', sum < 0);
+}
+function modalAdd(){
+  if (!modalDay) return;
+  addTxToDay(modalDay, false);
+  renderModalRows();
+  const list = document.querySelectorAll('#modalTx .m-amount');
+  list[list.length-1]?.focus();
+}
+
+overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+
+/* ---------- اسکرول بی‌نهایت ---------- */
+const CHUNK = 20;
+function renderBefore(n){
+  const frag = document.createDocumentFragment();
+  for (let i = n; i > 0; i--){
+    const date = addDays(firstDate, -i);
+    const rows = makeDayRows(date);
+    rows.forEach(r => frag.appendChild(r));
+  }
+  firstDate = addDays(firstDate, -n);
+  const h0 = wrap.scrollHeight;
+  tbody.prepend(frag);
+  wrap.scrollTop += wrap.scrollHeight - h0;
+  refreshChart();
+}
+function renderAfter(n){
+  const frag = document.createDocumentFragment();
+  for (let i = 1; i <= n; i++){
+    const date = addDays(lastDate, 1);
+    lastDate = date;
+    const rows = makeDayRows(date);
+    rows.forEach(r => frag.appendChild(r));
+  }
+  tbody.appendChild(frag);
+  refreshChart();
+}
+wrap.addEventListener('scroll', () => {
+  if (wrap.scrollTop < 150) renderBefore(CHUNK);
+  if (wrap.scrollTop + wrap.clientHeight > wrap.scrollHeight - 150) renderAfter(CHUNK);
+});
+
+/* ---------- جمع روزانه، مانده و نمودار ---------- */
+const fmt = n => n.toLocaleString('fa-IR');
+function recalc(){
+  let balance = 0;
+  const firstRows = tbody.querySelectorAll('tr.day-first');
+  firstRows.forEach(firstRow => {
+    const key = firstRow.dataset.key;
+    const dayRows = tbody.querySelectorAll(`tr.day[data-key="${key}"]`);
+    let sum = 0;
+    dayRows.forEach(r => {
+      const a = r.querySelector('.amount');
+      if (a) sum += parseFloat(a.value) || 0;
+    });
+    balance += sum;
+    const daily = firstRow.querySelector('.daily');
+    daily.textContent = fmt(sum);
+    daily.classList.toggle('neg', sum < 0);
+    daily.classList.toggle('pos', sum > 0);
+    const bal = firstRow.querySelector('.balance');
+    bal.textContent = fmt(balance);
+    bal.classList.toggle('neg', balance < 0);
+    bal.classList.toggle('pos', balance > 0);
+  });
+  refreshChart();
+}
+
+/* ---------- ساخت مجدد ---------- */
+function rebuild(){
+  tbody.innerHTML = '';
+  firstDate = lastDate = today;
+  const todayRows = makeDayRows(today);
+  todayRow = todayRows[0];
+  todayRows.forEach(r => tbody.appendChild(r));
+  renderBefore(15);
+  renderAfter(15);
+  recalc();
+  wrap.scrollTop = todayRow.offsetTop - wrap.clientHeight / 2;
+}
+
+/* ---------- رویدادها ---------- */
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('add-tx')){
+    const day = e.target.closest('tr.day-first');
+    if (day) addTxToDay(day);
+    return;
+  }
+  if (e.target.classList.contains('modal-add')){ modalAdd(); return; }
+  if (e.target.classList.contains('modal-close')){ closeModal(); return; }
+  if (e.target.classList.contains('del-tx')){
+    const modalItem = e.target.closest('.modal-item');
+    if (modalItem){
+      if (!modalDay) return;
+      removeTx(modalDay, +modalItem.dataset.idx);
+      renderModalRows();
+      return;
+    }
+    const txRow = e.target.closest('tr.day');
+    if (!txRow) return;
+    const key = txRow.dataset.key;
+    const dayRows = [...tbody.querySelectorAll(`tr.day[data-key="${key}"]`)];
+    const idx = dayRows.indexOf(txRow);
+    removeTx(txRow, idx);
+    return;
+  }
+});
+
+wrap.addEventListener('click', e => {
+  const day = e.target.closest('tr.day-first');
+  if (!day) return;
+  if (e.target.closest('input, button')) return;
+  openModal(day);
+});
+
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.classList.contains('amount') || t.classList.contains('title')){
+    const txRow = t.closest('tr.day');
+    if (!txRow) return;
+    const key = txRow.dataset.key;
+    const dayRows = [...tbody.querySelectorAll(`tr.day[data-key="${key}"]`)];
+    const idx = dayRows.indexOf(txRow);
+    if (!store[key]) store[key] = [];
+    if (!store[key][idx]) store[key][idx] = { a:0, t:'' };
+    if (t.classList.contains('amount')) store[key][idx].a = parseFloat(t.value) || 0;
+    else store[key][idx].t = t.value;
+    persist();
+    recalc();
+  }
+  if ((t.classList.contains('m-amount') || t.classList.contains('m-title')) && modalDay){
+    const item = t.closest('.modal-item');
+    const txs = store[modalDay.dataset.key] || [];
+    const i = +item.dataset.idx;
+    if (!txs[i]) return;
+    if (t.classList.contains('m-amount')) txs[i].a = parseFloat(t.value) || 0;
+    else txs[i].t = t.value;
+    persist();
+    syncDayGroup(modalDay.dataset.key);
+    recalc();
+    updateModalSum();
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !overlay.hidden){ closeModal(); return; }
+  if (e.key === 'Enter'){
+    if (e.target.classList.contains('title')){
+      e.preventDefault();
+      const day = e.target.closest('tr.day-first');
+      if (day) addTxToDay(day);
+    } else if (e.target.classList.contains('m-title')){
+      e.preventDefault();
+      modalAdd();
+    }
+  }
+});
+
+/* ---------- Toggle ستون تراکنش‌ها ---------- */
+const toggleBtn = document.getElementById('toggleTx');
+function applyTxLabel(){
+  toggleBtn.textContent = table.classList.contains('hide-tx')
+    ? '▦ نمایش ستون تراکنش‌ها'
+    : '▤ پنهان‌سازی ستون تراکنش‌ها';
+}
+toggleBtn.onclick = () => {
+  localStorage.setItem(LS_HIDE, table.classList.toggle('hide-tx') ? '1' : '0');
+  applyTxLabel();
+};
+if (localStorage.getItem(LS_HIDE) === '1') table.classList.add('hide-tx');
+applyTxLabel();
+
+/* ---------- Export / Import ---------- */
+document.getElementById('exportBtn').onclick = () => {
+  const blob = new Blob([JSON.stringify(
+    { app:'daily-ledger', exported:new Date().toISOString(), tx:store }, null, 2)],
+    { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'ledger-' + toShamsi(today).replaceAll('/', '-') + '.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
+document.getElementById('importFile').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      let obj = JSON.parse(reader.result);
+      if (obj && typeof obj === 'object' && obj.tx) obj = obj.tx;
+      const clean = {};
+      for (const [k, v] of Object.entries(obj)){
+        if (typeof k !== 'string' || !Array.isArray(v)) continue;
+        const txs = v.map(t => ({ a: parseFloat(t.a) || 0, t: String(t.t ?? '') }))
+                     .filter(t => t.a !== 0 || t.t.trim() !== '');
+        if (txs.length) clean[k] = txs;
+      }
+      store = clean;
+      persist();
+      closeModal();
+      rebuild();
+    } catch { alert('فایل JSON نامعتبر است.'); }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+});
+
+/* ---------- شروع ---------- */
+rebuild();
+</script>
+</body>
+</html>
