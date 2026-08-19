@@ -12,6 +12,7 @@
     --bg:#f8fafc; --card:#fff; --line:#000; --line-soft:#1f2937; --ink:#0f172a; --muted:#475569;
     --accent:#0d9488; --accent-dark:#0f766e;
     --red:#dc2626; --red-soft:#fef2f2; --today-soft:#fef3c7; --gold:#f59e0b;
+    --blue:#0284c7; --orange:#ea580c; --purple:#7c3aed;
     --shadow-sm:0 1px 2px 0 rgb(0 0 0 / 0.15);
     --shadow:0 4px 6px -1px rgb(0 0 0 / 0.15), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg:0 10px 25px -3px rgb(0 0 0 / 0.2), 0 8px 10px -4px rgb(0 0 0 / 0.1);
@@ -39,10 +40,14 @@
   .btn:active{ transform:translateY(0); }
   .btn.primary{ background:var(--accent); color:#fff; border-color:#000; }
   .btn.primary:hover{ background:var(--accent-dark); }
+  .btn.danger{ background:var(--red); color:#fff; border-color:#000; }
+  .btn.danger:hover{ background:#b91c1c; }
+  .btn.success{ background:#059669; color:#fff; border-color:#000; }
+  .btn.success:hover{ background:#047857; }
   label.btn{ display:inline-flex; }
 
-  /* نمودار */
-  .chart-card{ padding:20px; margin-bottom:20px; }
+  .chart-card{ padding:20px; margin-bottom:20px; transition:all .3s; }
+  .chart-card.hidden{ display:none; }
   .chart-head{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; }
   .chart-head h2{ font-size:1.3rem; font-weight:700; display:flex; align-items:center; gap:8px; }
   .chart-head h2::before{ content:'📊'; font-size:1.5rem; }
@@ -52,7 +57,6 @@
   .balloon-btn:hover{ background:#e2e8f0; color:#000; }
   .balloon-btn.active{ background:linear-gradient(135deg, var(--accent), var(--accent-dark)); border-color:#000; color:#fff; box-shadow:0 0 0 3px rgba(13,148,136,.25); }
 
-  /* جدول */
   #wrap{
     position:relative;
     height:72vh; min-height:520px;
@@ -65,12 +69,17 @@
   #wrap::-webkit-scrollbar-thumb:hover{ background:var(--accent); }
   #wrap::-webkit-scrollbar-track{ background:#e2e8f0; border-radius:10px; }
 
-  table{ border-collapse:separate; border-spacing:0; width:100%; min-width:660px; }
+  table{ 
+    border-collapse:separate; 
+    border-spacing:0; 
+    width:100%; 
+    min-width:820px; 
+  }
   th, td{
     border-bottom:1.5px solid #000;
     border-right:1.5px solid #000;
     padding:10px 8px;
-    vertical-align:top;
+    vertical-align:middle;
     text-align:center;
     background:#fff;
   }
@@ -89,13 +98,13 @@
     letter-spacing:.3px;
   }
 
-  /* عرض ستون‌ها */
-  thead th:nth-child(1){ width:150px; }
-  thead th:nth-child(2){ width:150px; }
-  thead th:nth-child(3){ width:260px; }
-  thead th:nth-child(4){ width:40px;  }
-  thead th:nth-child(5){ width:110px;  }
-  thead th:nth-child(6){ width:700px; }
+  thead th:nth-child(1) { width: 140px; min-width: 130px; }
+  thead th:nth-child(2) { width: 100px; min-width: 90px; }
+  thead th:nth-child(3) { width: 130px; min-width: 110px; }
+  thead th:nth-child(4) { width: auto; min-width: 180px; }
+  thead th:nth-child(5) { width: 50px; min-width: 50px; max-width: 50px; }
+  thead th:nth-child(6) { width: 120px; min-width: 100px; }
+  thead th:nth-child(7) { width: 140px; min-width: 120px; }
 
   tbody tr.day td{ cursor:pointer; transition:background .15s; }
   tbody tr.day:hover td{ background:#f0fdfa; }
@@ -106,24 +115,47 @@
   tbody tr.day.today:hover td{ background:#fde68a; }
   tbody tr.day-first.today td.date-col{ box-shadow:inset 5px 0 0 var(--gold); }
 
-  input{
-    font:inherit; font-size:1rem; color:var(--ink);
-    width:95%; padding:8px 10px;
+  td[contenteditable="true"] {
+    cursor: text;
+    transition: all .2s;
+    min-height: 38px;
+    outline: none;
+    text-align: center;
+  }
+  td.editable-title {
+    text-align: right;
+    direction: rtl;
+  }
+  td[contenteditable="true"]:empty::before {
+    content: attr(data-placeholder);
+    color: #94a3b8;
+    pointer-events: none;
+    font-weight: 400;
+  }
+  td[contenteditable="true"]:focus {
+    background: #fff;
+    outline: 2px solid var(--accent);
+    border-radius: 6px;
+    box-shadow: 0 0 0 3px rgba(13,148,136,.15);
+    z-index: 2;
+    position: relative;
+  }
+
+  select.tx-type {
+    font:inherit; font-size:.9rem; color:var(--ink);
+    width:100%; padding:6px 8px;
     border:1.5px solid transparent; border-radius:6px;
     background:transparent;
+    cursor:pointer;
     transition:all .2s;
   }
-  input:hover{ background:#f1f5f9; }
-  input:focus{ outline:none; background:#fff; border-color:var(--accent); box-shadow:0 0 0 3px rgba(13,148,136,.15); }
-  input.title, input.m-title{ direction:rtl; text-align:right; }
-  input[type=number]{ font-variant-numeric:tabular-nums; -moz-appearance:textfield; appearance:textfield; }
-  input::-webkit-outer-spin-button, input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+  select.tx-type:hover{ background:#f1f5f9; }
+  select.tx-type:focus{ outline:none; background:#fff; border-color:var(--accent); box-shadow:0 0 0 3px rgba(13,148,136,.15); }
 
-  /* سلول تاریخ */
-  .date-col{ vertical-align:middle; padding:10px; min-width:130px; }
-  .datebox{ display:flex; align-items:center; justify-content:flex-start; gap:10px; flex-wrap:nowrap; direction:rtl; }
-  .weekday{ font-size:.95rem; font-weight:700; color:var(--accent-dark); white-space:nowrap; }
-  .dateval{ font-size:1.05rem; font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; color:var(--ink); }
+  .date-col{ vertical-align:middle; padding:10px; }
+  .datebox{ display:flex; align-items:center; justify-content:flex-start; gap:8px; flex-wrap:nowrap; direction:rtl; }
+  .weekday{ font-size:.9rem; font-weight:700; color:var(--accent-dark); white-space:nowrap; }
+  .dateval{ font-size:1rem; font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; color:var(--ink); }
   tr.friday .weekday, tr.friday .dateval{ color:var(--red); font-weight:700; }
 
   .date-col .add-tx{
@@ -145,7 +177,7 @@
   }
   .del-tx:hover{ background:var(--red-soft); color:var(--red); transform:scale(1.15); }
 
-  td.daily, td.balance{ font-weight:700; font-variant-numeric:tabular-nums; font-size:1.1rem; white-space:nowrap; vertical-align:middle; }
+  td.daily, td.balance{ font-weight:700; font-variant-numeric:tabular-nums; font-size:1.05rem; white-space:nowrap; vertical-align:middle; }
   .pos{ color:var(--accent-dark); } .neg{ color:var(--red); }
 
   #ledger.hide-tx .txcol{ display:none; }
@@ -153,7 +185,6 @@
   .hint{ font-size:.95rem; color:var(--ink); margin-top:20px; line-height:1.8; padding:16px 18px; background:#f1f5f9; border:2px solid #000; border-radius:10px; }
   .hint b{ color:var(--accent-dark); }
 
-  /* ── مدال بزرگ‌تر ── */
   #overlay{
     position:fixed; inset:0; z-index:50;
     background:rgba(15,23,42,.7);
@@ -163,7 +194,7 @@
   }
   #overlay[hidden]{ display:none; }
   .modal{
-    background:#fff; border:2px solid #000; border-radius:18px; width:min(560px,100%);
+    background:#fff; border:2px solid #000; border-radius:18px; width:min(640px,100%);
     box-shadow:var(--shadow-lg);
     animation:modalIn .25s ease-out;
   }
@@ -185,20 +216,14 @@
 
   .modal-list{ margin-bottom:18px; }
   .modal-item{
-    display:flex;
-    gap:10px;
-    align-items:center;
-    margin-bottom:14px;
-    padding:14px;
-    background:#f8fafc;
-    border-radius:12px;
-    border:1.5px solid #000;
-    transition:all .2s;
+    display:flex; gap:10px; align-items:center; margin-bottom:14px;
+    padding:14px; background:#f8fafc; border-radius:12px; border:1.5px solid #000; transition:all .2s;
   }
   .modal-item:hover{ border-color:var(--accent); background:#f0fdfa; }
-  .modal-item input{ flex:1; background:#fff; font-size:1rem; padding:10px 12px; border:1.5px solid #000; }
-  .modal-item input:focus{ border-color:var(--accent); }
-  .modal-item .m-amount{ flex:0 0 130px; }
+  .modal-item input, .modal-item select{ flex:1; background:#fff; font-size:1rem; padding:10px 12px; border:1.5px solid #000; }
+  .modal-item input:focus, .modal-item select:focus{ border-color:var(--accent); outline:none; }
+  .modal-item .m-amount{ flex:0 0 120px; }
+  .modal-item .m-type{ flex:0 0 140px; }
   .modal-item .del-tx{ flex:0 0 auto; font-size:1.4rem; width:32px; height:32px; }
 
   .modal-add{ width:100%; font-size:1rem; padding:14px; background:#f1f5f9; border:2px dashed #000; color:var(--ink); border-radius:12px; font-weight:700; }
@@ -207,7 +232,6 @@
   .modal-foot b{ font-size:1.25rem; }
   .modal-empty{ color:var(--ink); font-size:1rem; padding:24px; text-align:center; background:#f1f5f9; border-radius:10px; border:1.5px dashed #000; }
 
-  /* ── واکنش‌گرایی ── */
   @media (max-width: 720px){
     .page{ padding:16px 12px 40px; }
     .topbar h1{ font-size:1.6rem; }
@@ -215,25 +239,25 @@
     .btn{ padding:10px 14px; font-size:.95rem; }
     #chart{ height:280px; }
     thead th{ font-size:.9rem; }
-    input{ font-size:.95rem; padding:8px 8px; }
-    .modal{ width:min(95%,560px); }
+    .modal{ width:min(95%,640px); }
     .modal-item{ flex-wrap:wrap; }
-    .modal-item .m-amount{ flex:1 1 100%; }
+    .modal-item .m-amount, .modal-item .m-type{ flex:1 1 100%; }
     .hint{ font-size:.85rem; padding:12px 14px; }
   }
   @media (max-width: 480px){
     .topbar{ flex-direction:column; gap:8px; align-items:flex-start; }
     .topbar h1{ font-size:1.4rem; }
     #chart{ height:240px; }
-    input{ font-size:.9rem; padding:8px 6px; }
     .hint{ font-size:.8rem; }
     .btn{ padding:9px 12px; font-size:.88rem; }
     .toolbar{ gap:8px; }
-    thead th:nth-child(1){ width:130px; }
-    thead th:nth-child(2){ width:120px; }
-    thead th:nth-child(3){ width:180px; }
-    thead th:nth-child(5){ width:95px; }
-    thead th:nth-child(6){ width:520px; }
+    thead th:nth-child(1) { width: 110px; min-width: 100px; font-size: 0.85rem; }
+    thead th:nth-child(2) { width: 90px; min-width: 80px; font-size: 0.85rem; }
+    thead th:nth-child(3) { width: 100px; min-width: 90px; font-size: 0.85rem; }
+    thead th:nth-child(4) { width: auto; min-width: 140px; }
+    thead th:nth-child(5) { width: 40px; min-width: 40px; }
+    thead th:nth-child(6) { width: 100px; min-width: 90px; font-size: 0.85rem; }
+    thead th:nth-child(7) { width: 110px; min-width: 100px; font-size: 0.85rem; }
   }
 </style>
 </head>
@@ -248,18 +272,24 @@
   <div class="toolbar">
     <button type="button" class="btn primary" id="jumpToday"><span>🎯</span>پرش به امروز</button>
     <button type="button" class="btn" id="reportBtn"><span>📈</span>ریپورت تراکنش</button>
+    <button type="button" class="btn success" id="recalcBtn"><span>🔄</span>محاسبه مجدد</button>
+    <button type="button" class="btn" id="toggleChartBtn"><span>📊</span><span class="toggle-chart-text"></span></button>
     <button type="button" class="btn" id="toggleTx"><span>▤</span><span class="toggle-text"></span></button>
     <button type="button" class="btn" id="exportBtn"><span>⤓</span>خروجی JSON</button>
     <label class="btn" for="importFile"><span>⤒</span>ورودی JSON</label>
     <input type="file" id="importFile" accept=".json,application/json" hidden>
+    <button type="button" class="btn" id="exportCsvBtn"><span>📄</span>خروجی CSV</button>
+    <label class="btn" for="importCsvFile"><span>📄</span>ورودی CSV</label>
+    <input type="file" id="importCsvFile" accept=".csv,text/csv" hidden>
+    <button type="button" class="btn" id="exportHtmlBtn"><span>📋</span>خروجی HTML</button>
+    <button type="button" class="btn danger" id="clearBtn"><span>🗑</span>پاک‌سازی حافظه</button>
   </div>
 
   <div class="card chart-card" id="chartCard">
     <div class="chart-head">
       <h2>نمودار ماندهٔ روزانه</h2>
-      <button type="button" class="btn balloon-btn" id="balloonBtn"
-              title="نمایش عنوان تراکنش‌ها روی نقاط نمودار">🎈 تراکنش‌ها</button>
-      <span>اسکرول = زوم · درگ = جابه‌جایی · کلیک = پرش به روز (سطر دوم)</span>
+      <button type="button" class="btn balloon-btn" id="balloonBtn" title="نمایش عنوان تراکنش‌ها روی نقاط نمودار">🎈 تراکنش‌ها</button>
+      <span>اسکرول = زوم · درگ = جابه‌جایی · کلیک = پرش به اولین تراکنش روز</span>
     </div>
     <div id="chart"></div>
   </div>
@@ -269,6 +299,7 @@
       <thead>
         <tr>
           <th>تاریخ</th>
+          <th class="txcol">نوع</th>
           <th class="txcol">مبلغ</th>
           <th class="txcol">عنوان</th>
           <th class="txcol"></th>
@@ -281,13 +312,12 @@
   </div>
 
   <p class="hint">
-    💡 <b>راهنما:</b> کلیک روی هر سطر = مدال تراکنش‌ها · کلیک روی نمودار = پرش به سطر دوم روز ·
+    💡 <b>راهنما:</b> کلیک روی هر سطر = مدال تراکنش‌ها · کلیک مستقیم روی مبلغ/عنوان = ویرایش سریع ·
     «+» کنار تاریخ = تراکنش جدید · 🎈 = نمایش عناوین روی نمودار ·
-    مبلغ منفی = هزینه · Enter = تراکنش بعدی · جمعه‌ها قرمز · داده‌ها در localStorage ذخیره می‌شوند.
+    مبلغ منفی = هزینه · Enter = ثبت و رفتن به سطر بعدی · جمعه‌ها قرمز · داده‌ها در localStorage ذخیره می‌شوند.
   </p>
 </div>
 
-<!-- مدال -->
 <div id="overlay" hidden>
   <div class="modal">
     <div class="modal-head">
@@ -305,8 +335,7 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js" 
-        onerror="window.echartsError=true"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js" onerror="window.echartsError=true"></script>
 
 <script>
 const tbody = document.querySelector('#ledger tbody');
@@ -318,23 +347,28 @@ const modalSum   = document.getElementById('modalSum');
 const modalEmpty = document.getElementById('modalEmpty');
 let modalDay = null;
 
-/* ---------- localStorage ---------- */
-const LS_TX = 'ledger:tx', LS_HIDE = 'ledger:hideTx', LS_BALLOONS = 'ledger:balloons';
+const TX_TYPES = {
+  'income': { label: 'درآمد', icon: '💚', color: '#0f766e' },
+  'expense': { label: 'هزینه', icon: '❤️', color: '#dc2626' },
+  'loan': { label: 'وام', icon: '🏦', color: '#0284c7' },
+  'debt': { label: 'بدهی', icon: '📋', color: '#ea580c' },
+  'deposit': { label: 'امانت', icon: '💎', color: '#7c3aed' }
+};
+
+const LS_TX = 'ledger:tx', LS_HIDE = 'ledger:hideTx', LS_BALLOONS = 'ledger:balloons', LS_CHART = 'ledger:showChart';
 let store = {};
 try { store = JSON.parse(localStorage.getItem(LS_TX)) || {}; } catch { store = {}; }
 
 function persist(){
   const clean = {};
   for (const [k, v] of Object.entries(store)){
-    const arr = (v || []).filter(t => t.a !== 0 || (t.t || '').trim() !== '');
+    const arr = (v || []).filter(t => t.a !== 0 || (t.t || '').trim() !== '' || t.type);
     if (arr.length) clean[k] = arr;
   }
   localStorage.setItem(LS_TX, JSON.stringify(clean));
 }
 
-/* ---------- تاریخ شمسی ---------- */
-const jdf = new Intl.DateTimeFormat('fa-IR-u-nu-latn',
-  { year:'numeric', month:'2-digit', day:'2-digit' });
+const jdf = new Intl.DateTimeFormat('fa-IR-u-nu-latn', { year:'numeric', month:'2-digit', day:'2-digit' });
 
 function toShamsi(date){
   const parts = jdf.formatToParts(date);
@@ -343,6 +377,7 @@ function toShamsi(date){
 }
 function addDays(d, n){ const x = new Date(d); x.setDate(x.getDate()+n); return x; }
 const faDigits = s => String(s).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+const fmt = n => n.toLocaleString('fa-IR');
 
 const WEEKDAYS_FA = ['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه','شنبه'];
 function setWeekday(tr, gDate){
@@ -354,10 +389,8 @@ function setWeekday(tr, gDate){
 const today = new Date(); today.setHours(0,0,0,0);
 let firstDate = today, lastDate = today, todayRow;
 
-document.getElementById('todayFull').textContent =
-  'امروز: ' + new Intl.DateTimeFormat('fa-IR', { dateStyle:'full' }).format(new Date());
+document.getElementById('todayFull').textContent = 'امروز: ' + new Intl.DateTimeFormat('fa-IR', { dateStyle:'full' }).format(new Date());
 
-/* ---------- دکمهٔ بالون‌ها ---------- */
 let showBalloons = localStorage.getItem(LS_BALLOONS) === '1';
 const balloonBtn = document.getElementById('balloonBtn');
 function applyBalloonBtn(){ balloonBtn.classList.toggle('active', showBalloons); }
@@ -376,252 +409,164 @@ function balloonData(dates, vals){
   for (const [key, txs] of Object.entries(store)){
     const i = idxOf.get(key);
     if (i === undefined) continue;
-    const real = (txs || []).filter(t => t.a !== 0 || (t.t || '').trim() !== '');
+    const real = (txs || []).filter(t => t.a !== 0 || (t.t || '').trim() !== '' || t.type);
     if (!real.length) continue;
     const sum = real.reduce((s, t) => s + (t.a || 0), 0);
     const titles = real.map(t => (t.t || '').trim()).filter(Boolean).join('، ');
     let short = titles || fmt(sum);
     if (short.length > 18) short = short.slice(0, 17) + '…';
-    pts.push({
-      coord:[i, vals[i]],
-      name: titles || 'بدون عنوان',
-      value: short,
-      dateStr: key,
-      sumStr: fmt(sum)
-    });
+    pts.push({ coord:[i, vals[i]], name: titles || 'بدون عنوان', value: short, dateStr: key, sumStr: fmt(sum) });
   }
   return pts;
 }
 
-/* ---------- نمودار ---------- */
 let chart = null;
 let chartDates = [];
 
-if (window.echarts && !window.echartsError){
-  try {
-    chart = echarts.init(document.getElementById('chart'));
-    chart.setOption({
-      animation:false,
-      grid:{ left:75, right:16, top:50, bottom:58 },
-      tooltip:{
-        trigger:'axis',
-        textStyle:{ fontFamily:"'Vazirmatn', Tahoma", fontSize:13 },
-        formatter: p => `${faDigits(p[0].name)}<br>مانده: <b>${(+p[0].value).toLocaleString('fa-IR')}</b>`
-      },
-      toolbox:{
-        right:8, top:0, iconStyle:{ borderColor:'#000' },
-        feature:{
-          dataZoom:{ yAxisIndex:'none', title:{ zoom:'زوم', back:'بازگشت زوم' } },
-          restore:{ title:'بازنشانی' },
-          saveAsImage:{ title:'ذخیرهٔ تصویر', name:'balance-chart' }
-        }
-      },
-      xAxis:{
-        type:'category', boundaryGap:false, data:[],
-        axisLabel:{ fontFamily:"'Vazirmatn', Tahoma", fontSize:11, rotate:45, formatter: v => faDigits(v) },
-        axisTick:{ alignWithLabel:true }
-      },
-      yAxis:{
-        type:'value',
-        max: function(value) {
-          if (value.max > 0) return Math.ceil(value.max * 1.3);
-          return null;
-        },
-        axisLabel:{ fontFamily:"'Vazirmatn', Tahoma", fontSize:11, formatter: v => v.toLocaleString('fa-IR') },
-        splitLine:{ lineStyle:{ color:'#000', type:'dashed', opacity:.25 } }
-      },
-      dataZoom:[
-        { type:'inside', xAxisIndex:0, zoomOnMouseWheel:true, moveOnMouseMove:true, moveOnMouseWheel:false },
-        { type:'slider', xAxisIndex:0, height:18, bottom:6,
-          textStyle:{ fontFamily:"'Vazirmatn', Tahoma" }, labelFormatter: v => faDigits(Math.round(v)) }
-      ],
-      series:[{
-        name:'مانده', type:'line', data:[],
-        showSymbol:true, symbolSize:7,
-        lineStyle:{ width:3, color:'#0d9488' },
-        itemStyle:{ color:'#0d9488' },
-        label:{
-          show:true, position:'top', distance:6,
-          fontFamily:"'Vazirmatn', Tahoma", fontSize:11, fontWeight:600, color:'#0b7a70',
-          formatter: p => (+p.value).toLocaleString('fa-IR')
-        },
-        labelLayout:{ hideOverlap:true },
-        areaStyle:{ color: new echarts.graphic.LinearGradient(0,0,0,1,[
-          { offset:0, color:'rgba(13,148,136,.28)' },
-          { offset:1, color:'rgba(13,148,136,.02)' }
-        ])},
-        markLine:{
-          silent:true, symbol:'none', label:{ show:false },
-          lineStyle:{ type:'dashed', color:'#000', opacity:.4 },
-          data:[{ yAxis:0 }]
-        },
-        markPoint:{
-          data:[],
-          symbol:'pin', symbolSize:46,
-          itemStyle:{ color:'#e8a722', borderColor:'#000', borderWidth:1.5 },
-          label:{
-            show:true, position:'top', distance:10,
-            backgroundColor:'#fff', borderColor:'#000', borderWidth:1.5,
-            borderRadius:6, padding:[4,8],
-            color:'#000', fontSize:11, fontWeight:600,
-            fontFamily:"'Vazirmatn', Tahoma",
-            formatter: p => p.value
-          },
-          tooltip:{
-            formatter: p =>
-              `<div style="direction:rtl">${faDigits(p.data.dateStr)}<br><b>${p.name}</b><br>جمع روز: ${p.data.sumStr}</div>`
-          }
-        }
-      }]
-    });
-
-    function chartLayout(){
-      const small = window.innerWidth < 640;
+function initChart(){
+  if (window.echarts && !window.echartsError){
+    try {
+      chart = echarts.init(document.getElementById('chart'));
       chart.setOption({
-        grid:{ left: small ? 52 : 75, right: small ? 10 : 16, top: small ? 40 : 50, bottom: small ? 50 : 58 },
-        xAxis:{ axisLabel:{ rotate: small ? 60 : 45, fontSize: small ? 10 : 11 } },
-        series:[{ label:{ fontSize: small ? 10 : 11 } }]
+        animation:false,
+        grid:{ left:75, right:16, top:50, bottom:58 },
+        tooltip:{ trigger:'axis', textStyle:{ fontFamily:"'Vazirmatn', Tahoma", fontSize:13 }, formatter: p => `${faDigits(p[0].name)}<br>مانده: <b>${(+p[0].value).toLocaleString('fa-IR')}</b>` },
+        toolbox:{ right:8, top:0, iconStyle:{ borderColor:'#000' }, feature:{ dataZoom:{ yAxisIndex:'none', title:{ zoom:'زوم', back:'بازگشت زوم' } }, restore:{ title:'بازنشانی' }, saveAsImage:{ title:'ذخیرهٔ تصویر', name:'balance-chart' } } },
+        xAxis:{ type:'category', boundaryGap:false, data:[], axisLabel:{ fontFamily:"'Vazirmatn', Tahoma", fontSize:11, rotate:45, formatter: v => faDigits(v) }, axisTick:{ alignWithLabel:true } },
+        yAxis:{ type:'value', max: function(value) { if (value.max > 0) return Math.ceil(value.max * 1.3); return null; }, axisLabel:{ fontFamily:"'Vazirmatn', Tahoma", fontSize:11, formatter: v => v.toLocaleString('fa-IR') }, splitLine:{ lineStyle:{ color:'#000', type:'dashed', opacity:.25 } } },
+        dataZoom:[ { type:'inside', xAxisIndex:0, zoomOnMouseWheel:true, moveOnMouseMove:true, moveOnMouseWheel:false }, { type:'slider', xAxisIndex:0, height:18, bottom:6, textStyle:{ fontFamily:"'Vazirmatn', Tahoma" }, labelFormatter: v => faDigits(Math.round(v)) } ],
+        series:[{
+          name:'مانده', type:'line', data:[], showSymbol:true, symbolSize:7, lineStyle:{ width:3, color:'#0d9488' }, itemStyle:{ color:'#0d9488' },
+          label:{ show:true, position:'top', distance:6, fontFamily:"'Vazirmatn', Tahoma", fontSize:11, fontWeight:600, color:'#0b7a70', formatter: p => (+p.value).toLocaleString('fa-IR') },
+          labelLayout:{ hideOverlap:true },
+          areaStyle:{ color: new echarts.graphic.LinearGradient(0,0,0,1,[{ offset:0, color:'rgba(13,148,136,.28)' }, { offset:1, color:'rgba(13,148,136,.02)' }])},
+          markLine:{ silent:true, symbol:'none', label:{ show:false }, lineStyle:{ type:'dashed', color:'#000', opacity:.4 }, data:[{ yAxis:0 }] },
+          markPoint:{ data:[], symbol:'pin', symbolSize:46, itemStyle:{ color:'#e8a722', borderColor:'#000', borderWidth:1.5 }, label:{ show:true, position:'top', distance:10, backgroundColor:'#fff', borderColor:'#000', borderWidth:1.5, borderRadius:6, padding:[4,8], color:'#000', fontSize:11, fontWeight:600, fontFamily:"'Vazirmatn', Tahoma", formatter: p => p.value }, tooltip:{ formatter: p => `<div style="direction:rtl">${faDigits(p.data.dateStr)}<br><b>${p.name}</b><br>جمع روز: ${p.data.sumStr}</div>` } }
+        }]
       });
-    }
-    chartLayout();
-    window.addEventListener('resize', () => { chart.resize(); chartLayout(); });
 
-    let downPt = null;
-    chart.getZr().on('mousedown', e => { downPt = [e.offsetX, e.offsetY]; });
-    chart.getZr().on('click', e => {
-      if (downPt && Math.hypot(e.offsetX - downPt[0], e.offsetY - downPt[1]) > 6) return;
-      const pt = [e.offsetX, e.offsetY];
-      if (!chart.containPixel('grid', pt)) return;
-      const xVal = chart.convertFromPixel('grid', pt)[0];
-      const i = Math.max(0, Math.min(Math.round(xVal), chartDates.length - 1));
-      if (chartDates[i]) scrollToDayRow(chartDates[i], 'second'); // ← سطر دوم
-    });
-  } catch (err) {
-    console.warn('ECharts initialization failed:', err);
+      function chartLayout(){
+        const small = window.innerWidth < 640;
+        chart.setOption({ grid:{ left: small ? 52 : 75, right: small ? 10 : 16, top: small ? 40 : 50, bottom: small ? 50 : 58 }, xAxis:{ axisLabel:{ rotate: small ? 60 : 45, fontSize: small ? 10 : 11 } }, series:[{ label:{ fontSize: small ? 10 : 11 } }] });
+      }
+      chartLayout();
+      window.addEventListener('resize', () => { chart.resize(); chartLayout(); });
+
+      let downPt = null;
+      chart.getZr().on('mousedown', e => { downPt = [e.offsetX, e.offsetY]; });
+      chart.getZr().on('click', e => {
+        if (downPt && Math.hypot(e.offsetX - downPt[0], e.offsetY - downPt[1]) > 6) return;
+        const pt = [e.offsetX, e.offsetY];
+        if (!chart.containPixel('grid', pt)) return;
+        const xVal = chart.convertFromPixel('grid', pt)[0];
+        const i = Math.max(0, Math.min(Math.round(xVal), chartDates.length - 1));
+        if (chartDates[i]) scrollToDayRow(chartDates[i]);
+      });
+    } catch (err) {
+      console.warn('ECharts initialization failed:', err);
+      document.getElementById('chartCard').style.display = 'none';
+    }
+  } else {
     document.getElementById('chartCard').style.display = 'none';
   }
-} else {
-  document.getElementById('chartCard').style.display = 'none';
 }
 
-/* ---------- اسکرول به سطر دوم روز ---------- */
-function scrollToDayRow(dateKey, mode = 'first'){
-  const firstRow = tbody.querySelector(`tr.day-first[data-key="${dateKey}"]`);
-  if (!firstRow) return;
-  let row = firstRow;
+let showChart = localStorage.getItem(LS_CHART) !== '0';
+const chartCard = document.getElementById('chartCard');
+const toggleChartBtn = document.getElementById('toggleChartBtn');
+
+function applyChartVisibility(){
+  chartCard.classList.toggle('hidden', !showChart);
+  toggleChartBtn.querySelector('.toggle-chart-text').textContent = showChart ? 'مخفی کردن نمودار' : 'نمایش نمودار';
+  toggleChartBtn.querySelector('span:first-child').textContent = showChart ? '📊' : '📈';
   
-  // اگر mode === 'second' باشه، به سطر دوم (تراکنش اول) اسکرول می‌کنه
-  if (mode === 'second'){
-    const dayRows = tbody.querySelectorAll(`tr.day[data-key="${dateKey}"]`);
-    // سطر دوم: اگر وجود داشت اون، وگرنه همون سطر اول
-    row = dayRows[1] || dayRows[0];
+  if (showChart && chart) {
+    setTimeout(() => chart.resize(), 100);
   }
-  
-  // اسکرول به گونه‌ای که سطر دوم (مورد نظر) به عنوان دومین سطر قابل مشاهده (زیر هدر) نمایش داده بشه
-  const theadHeight = table.querySelector('thead').offsetHeight;
-  const targetRowTop = row.offsetTop;
-  const rowHeight = row.offsetHeight;
-  
-  // سطر روز اول (day-first) رو بالای viewport می‌ذاریم تا سطر دوم کاملاً دیده بشه
-  // با این کار سطر اول هم دیده میشه ولی سطر دوم به‌عنوان "سطر اصلی" جلوی چشم هست
-  const firstRowTop = firstRow.offsetTop;
-  const top = firstRowTop - theadHeight - 8;
-  
-  wrap.scrollTo({ top: Math.max(0, top), behavior:'smooth' });
-  
-  row.classList.remove('flash');
-  void row.offsetWidth;
-  row.classList.add('flash');
-  setTimeout(() => row.classList.remove('flash'), 1400);
 }
 
-/* ---------- پرش به امروز ---------- */
-document.getElementById('jumpToday').onclick = () => {
-  if (!todayRow) return;
-  // اگر امروز در viewport نباشه، دوباره بسازیمش
-  const todayKey = toShamsi(today);
-  let row = tbody.querySelector(`tr.day-first[data-key="${todayKey}"]`);
-  if (!row){
-    // بازسازی کامل و پرش به امروز
-    rebuild();
-    row = tbody.querySelector(`tr.day-first[data-key="${todayKey}"]`);
-  }
-  if (row) scrollToDayRow(todayKey, 'first');
+toggleChartBtn.onclick = () => {
+  showChart = !showChart;
+  localStorage.setItem(LS_CHART, showChart ? '1' : '0');
+  applyChartVisibility();
 };
 
-/* ---------- ریپورت تراکنش ---------- */
+function scrollToDayRow(dateKey){
+  const firstRow = tbody.querySelector(`tr.day-first[data-key="${dateKey}"]`);
+  if (!firstRow) return;
+  
+  const theadHeight = table.querySelector('thead').offsetHeight;
+  const firstRowTop = firstRow.offsetTop;
+  const top = firstRowTop - theadHeight - 8;
+  wrap.scrollTo({ top: Math.max(0, top), behavior:'smooth' });
+  
+  firstRow.classList.remove('flash');
+  void firstRow.offsetWidth;
+  firstRow.classList.add('flash');
+  setTimeout(() => firstRow.classList.remove('flash'), 1400);
+}
+
+document.getElementById('jumpToday').onclick = () => {
+  if (!todayRow) return;
+  const todayKey = toShamsi(today);
+  let row = tbody.querySelector(`tr.day-first[data-key="${todayKey}"]`);
+  if (!row){ rebuild(); row = tbody.querySelector(`tr.day-first[data-key="${todayKey}"]`); }
+  if (row) scrollToDayRow(todayKey);
+};
+
 document.getElementById('reportBtn').onclick = () => {
   const keys = Object.keys(store).sort();
-  if (keys.length === 0){
-    alert('هنوز تراکنشی ثبت نشده است.');
-    return;
-  }
-  
+  if (keys.length === 0){ alert('هنوز تراکنشی ثبت نشده است.'); return; }
   let totalIncome = 0, totalExpense = 0, totalTx = 0, daysWithTx = keys.length;
   const rows = [];
-  
   keys.forEach(k => {
     const txs = store[k] || [];
     let daySum = 0;
     txs.forEach(t => {
-      const a = t.a || 0;
-      daySum += a;
-      if (a > 0) totalIncome += a;
-      else if (a < 0) totalExpense += Math.abs(a);
+      const a = t.a || 0; daySum += a;
+      if (a > 0) totalIncome += a; else if (a < 0) totalExpense += Math.abs(a);
       totalTx++;
     });
     rows.push({ date: k, sum: daySum, count: txs.length });
   });
-  
   const balance = totalIncome - totalExpense;
-  
-  let report = '═══════════════════════════════════\n';
-  report += '📊 ریپورت تراکنش‌ها\n';
-  report += '═══════════════════════════════════\n\n';
-  report += `📅 تعداد روزهای دارای تراکنش: ${faDigits(daysWithTx)}\n`;
-  report += `📝 تعداد کل تراکنش‌ها: ${faDigits(totalTx)}\n\n`;
-  report += `💚 جمع درآمد: ${faDigits(totalIncome.toLocaleString('fa-IR'))}\n`;
-  report += `❤️ جمع هزینه: ${faDigits(totalExpense.toLocaleString('fa-IR'))}\n`;
-  report += `💰 مانده نهایی: ${faDigits(balance.toLocaleString('fa-IR'))}\n\n`;
-  report += '───────────────────────────────────\n';
-  report += '📅 جزئیات روزانه:\n';
-  report += '───────────────────────────────────\n';
-  
+  let report = '═══════════════════════════════════\n📊 ریپورت تراکنش‌ها\n═══════════════════════════════════\n\n';
+  report += `📅 تعداد روزهای دارای تراکنش: ${faDigits(daysWithTx)}\n📝 تعداد کل تراکنش‌ها: ${faDigits(totalTx)}\n\n`;
+  report += `💚 جمع درآمد: ${faDigits(totalIncome.toLocaleString('fa-IR'))}\n❤️ جمع هزینه: ${faDigits(totalExpense.toLocaleString('fa-IR'))}\n💰 مانده نهایی: ${faDigits(balance.toLocaleString('fa-IR'))}\n\n`;
+  report += '───────────────────────────────────\n📅 جزئیات روزانه:\n───────────────────────────────────\n';
   rows.forEach(r => {
     const sign = r.sum >= 0 ? '+' : '';
     report += `${faDigits(r.date)} — ${sign}${faDigits(r.sum.toLocaleString('fa-IR'))} (${faDigits(r.count)} تراکنش)\n`;
   });
-  
   report += '\n═══════════════════════════════════';
-  
   alert(report);
 };
 
+document.getElementById('recalcBtn').onclick = () => {
+  recalc();
+  alert('✅ محاسبات با موفقیت بروزرسانی شد.');
+};
+
 function refreshChart(){
-  if (!chart) return;
+  if (!chart || !showChart) return;
   const dates = [], vals = [];
   let b = 0;
   const firstRows = tbody.querySelectorAll('tr.day-first');
   firstRows.forEach(firstRow => {
     const key = firstRow.dataset.key;
-    const dayRows = tbody.querySelectorAll(`tr.day[data-key="${key}"]`);
+    const txs = store[key] || [];
     let s = 0;
-    dayRows.forEach(r => {
-      const a = r.querySelector('.amount');
-      if (a) s += parseFloat(a.value) || 0;
+    txs.forEach(t => {
+      s += t.a || 0;
     });
     b += s;
     dates.push(key);
     vals.push(b);
   });
   chartDates = dates;
-  chart.setOption({
-    xAxis:{ data:dates },
-    series:[{ data:vals, markPoint:{ data: balloonData(dates, vals) } }]
-  });
+  chart.setOption({ xAxis:{ data:dates }, series:[{ data:vals, markPoint:{ data: balloonData(dates, vals) } }] });
 }
 
-/* ---------- ساخت سطرهای روز (با rowspan) ---------- */
 function makeDayRows(date){
   const key = toShamsi(date);
   const isToday = date.getTime() === today.getTime();
@@ -639,6 +584,9 @@ function makeDayRows(date){
 
     if (i === 0){
       tr.classList.add('day-first');
+      const amt = (txs[i] && txs[i].a !== 0) ? txs[i].a : '';
+      const ttl = (txs[i]) ? txs[i].t || '' : '';
+      const type = (txs[i]) ? txs[i].type || '' : '';
       tr.innerHTML = `
         <td rowspan="${n}" class="date-col">
           <div class="datebox">
@@ -647,30 +595,43 @@ function makeDayRows(date){
             <span class="dateval">${key}</span>
           </div>
         </td>
-        <td class="txcol"><input type="number" step="any" class="amount" placeholder="مبلغ"></td>
-        <td class="txcol"><input class="title" placeholder="عنوان"></td>
+        <td class="txcol">
+          <select class="tx-type">
+            <option value="">نوع</option>
+            <option value="income" ${type==='income'?'selected':''}>💚 درآمد</option>
+            <option value="expense" ${type==='expense'?'selected':''}>❤️ هزینه</option>
+            <option value="loan" ${type==='loan'?'selected':''}>🏦 وام</option>
+            <option value="debt" ${type==='debt'?'selected':''}>📋 بدهی</option>
+            <option value="deposit" ${type==='deposit'?'selected':''}>💎 امانت</option>
+          </select>
+        </td>
+        <td class="txcol editable-amount" contenteditable="true" data-placeholder="مبلغ">${amt}</td>
+        <td class="txcol editable-title" contenteditable="true" data-placeholder="عنوان">${ttl}</td>
         <td class="del txcol"><button type="button" class="del-tx" title="حذف">×</button></td>
         <td rowspan="${n}" class="daily">۰</td>
         <td rowspan="${n}" class="balance">۰</td>`;
       setWeekday(tr, date);
     } else {
+      const amt = (txs[i] && txs[i].a !== 0) ? txs[i].a : '';
+      const ttl = (txs[i]) ? txs[i].t || '' : '';
+      const type = (txs[i]) ? txs[i].type || '' : '';
       tr.innerHTML = `
-        <td class="txcol"><input type="number" step="any" class="amount" placeholder="مبلغ"></td>
-        <td class="txcol"><input class="title" placeholder="عنوان"></td>
+        <td class="txcol">
+          <select class="tx-type">
+            <option value="">نوع</option>
+            <option value="income" ${type==='income'?'selected':''}>💚 درآمد</option>
+            <option value="expense" ${type==='expense'?'selected':''}>❤️ هزینه</option>
+            <option value="loan" ${type==='loan'?'selected':''}>🏦 وام</option>
+            <option value="debt" ${type==='debt'?'selected':''}>📋 بدهی</option>
+            <option value="deposit" ${type==='deposit'?'selected':''}>💎 امانت</option>
+          </select>
+        </td>
+        <td class="txcol editable-amount" contenteditable="true" data-placeholder="مبلغ">${amt}</td>
+        <td class="txcol editable-title" contenteditable="true" data-placeholder="عنوان">${ttl}</td>
         <td class="del txcol"><button type="button" class="del-tx" title="حذف">×</button></td>`;
     }
-
-    if (i < txs.length){
-      const tx = txs[i];
-      const a = tr.querySelector('.amount');
-      const t = tr.querySelector('.title');
-      if (tx.a !== 0) a.value = tx.a;
-      t.value = tx.t || '';
-    }
-
     rows.push(tr);
   }
-
   return rows;
 }
 
@@ -686,13 +647,21 @@ function syncDayGroup(key){
 function addTxToDay(day, focus = true){
   const key = day.dataset.key;
   if (!store[key]) store[key] = [];
-  store[key].push({ a:0, t:'' });
+  store[key].push({ a:0, t:'', type:'' });
   persist();
   syncDayGroup(key);
   recalc();
   if (focus){
-    const list = tbody.querySelectorAll(`tr.day[data-key="${key}"] .amount`);
-    list[list.length-1]?.focus();
+    const list = tbody.querySelectorAll(`tr.day[data-key="${key}"] .editable-amount`);
+    if(list[list.length-1]) {
+        list[list.length-1].focus();
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(list[list.length-1]);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+    }
   }
 }
 
@@ -705,7 +674,6 @@ function removeTx(day, idx){
   recalc();
 }
 
-/* ---------- مدال ---------- */
 function openModal(day){
   modalDay = day;
   const firstRow = tbody.querySelector(`tr.day-first[data-key="${day.dataset.key}"]`) || day;
@@ -714,7 +682,7 @@ function openModal(day){
   renderModalRows();
   overlay.hidden = false;
   document.body.style.overflow = 'hidden';
-  overlay.querySelector('.m-amount')?.focus();
+  setTimeout(() => overlay.querySelector('.m-amount')?.focus(), 50);
 }
 function closeModal(){
   overlay.hidden = true;
@@ -730,6 +698,14 @@ function renderModalRows(){
     item.className = 'modal-item';
     item.dataset.idx = i;
     item.innerHTML = `
+      <select class="m-type">
+        <option value="">نوع</option>
+        <option value="income" ${tx.type==='income'?'selected':''}>💚 درآمد</option>
+        <option value="expense" ${tx.type==='expense'?'selected':''}>❤️ هزینه</option>
+        <option value="loan" ${tx.type==='loan'?'selected':''}>🏦 وام</option>
+        <option value="debt" ${tx.type==='debt'?'selected':''}>📋 بدهی</option>
+        <option value="deposit" ${tx.type==='deposit'?'selected':''}>💎 امانت</option>
+      </select>
       <input type="number" step="any" class="m-amount" placeholder="مبلغ">
       <input class="m-title" placeholder="عنوان">
       <button type="button" class="del-tx" title="حذف">×</button>`;
@@ -752,12 +728,11 @@ function modalAdd(){
   addTxToDay(modalDay, false);
   renderModalRows();
   const list = document.querySelectorAll('#modalTx .m-amount');
-  list[list.length-1]?.focus();
+  if(list[list.length-1]) list[list.length-1].focus();
 }
 
 overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
 
-/* ---------- اسکرول بی‌نهایت ---------- */
 const CHUNK = 20;
 function renderBefore(n){
   const frag = document.createDocumentFragment();
@@ -770,8 +745,9 @@ function renderBefore(n){
   const h0 = wrap.scrollHeight;
   tbody.prepend(frag);
   wrap.scrollTop += wrap.scrollHeight - h0;
-  refreshChart();
+  recalc();
 }
+
 function renderAfter(n){
   const frag = document.createDocumentFragment();
   for (let i = 1; i <= n; i++){
@@ -781,25 +757,23 @@ function renderAfter(n){
     rows.forEach(r => frag.appendChild(r));
   }
   tbody.appendChild(frag);
-  refreshChart();
+  recalc();
 }
+
 wrap.addEventListener('scroll', () => {
   if (wrap.scrollTop < 150) renderBefore(CHUNK);
   if (wrap.scrollTop + wrap.clientHeight > wrap.scrollHeight - 150) renderAfter(CHUNK);
 });
 
-/* ---------- جمع روزانه، مانده و نمودار ---------- */
-const fmt = n => n.toLocaleString('fa-IR');
 function recalc(){
   let balance = 0;
   const firstRows = tbody.querySelectorAll('tr.day-first');
   firstRows.forEach(firstRow => {
     const key = firstRow.dataset.key;
-    const dayRows = tbody.querySelectorAll(`tr.day[data-key="${key}"]`);
+    const txs = store[key] || [];
     let sum = 0;
-    dayRows.forEach(r => {
-      const a = r.querySelector('.amount');
-      if (a) sum += parseFloat(a.value) || 0;
+    txs.forEach(t => {
+      sum += t.a || 0;
     });
     balance += sum;
     const daily = firstRow.querySelector('.daily');
@@ -814,7 +788,6 @@ function recalc(){
   refreshChart();
 }
 
-/* ---------- ساخت مجدد ---------- */
 function rebuild(){
   tbody.innerHTML = '';
   firstDate = lastDate = today;
@@ -823,12 +796,14 @@ function rebuild(){
   todayRows.forEach(r => tbody.appendChild(r));
   renderBefore(15);
   renderAfter(15);
-  recalc();
-  const theadHeight = table.querySelector('thead').offsetHeight;
-  wrap.scrollTop = todayRow.offsetTop - theadHeight - 8;
+  
+  setTimeout(() => {
+    recalc();
+    const theadHeight = table.querySelector('thead').offsetHeight;
+    wrap.scrollTop = todayRow.offsetTop - theadHeight - 8;
+  }, 50);
 }
 
-/* ---------- رویدادها ---------- */
 document.addEventListener('click', e => {
   if (e.target.classList.contains('add-tx')){
     const day = e.target.closest('tr.day-first');
@@ -858,60 +833,94 @@ document.addEventListener('click', e => {
 wrap.addEventListener('click', e => {
   const day = e.target.closest('tr.day-first');
   if (!day) return;
-  if (e.target.closest('input, button')) return;
+  if (e.target.closest('td[contenteditable="true"], button, select')) return;
   openModal(day);
 });
 
 document.addEventListener('input', e => {
   const t = e.target;
-  if (t.classList.contains('amount') || t.classList.contains('title')){
+  if (t.classList.contains('editable-amount') || t.classList.contains('editable-title')) {
+    if (t.innerHTML.includes('<')) {
+        t.textContent = t.textContent.replace(/<[^>]*>/g, '');
+    }
+
     const txRow = t.closest('tr.day');
     if (!txRow) return;
     const key = txRow.dataset.key;
     const dayRows = [...tbody.querySelectorAll(`tr.day[data-key="${key}"]`)];
     const idx = dayRows.indexOf(txRow);
     if (!store[key]) store[key] = [];
-    if (!store[key][idx]) store[key][idx] = { a:0, t:'' };
-    if (t.classList.contains('amount')) store[key][idx].a = parseFloat(t.value) || 0;
-    else store[key][idx].t = t.value;
+    if (!store[key][idx]) store[key][idx] = { a:0, t:'', type:'' };
+
+    if (t.classList.contains('editable-amount')) {
+      let cleanVal = t.textContent.replace(/[^\d.-]/g, '');
+      const parts = cleanVal.split('.');
+      if (parts.length > 2) cleanVal = parts[0] + '.' + parts.slice(1).join('');
+      if (cleanVal !== t.textContent) {
+          t.textContent = cleanVal;
+          const range = document.createRange();
+          const sel = window.getSelection();
+          range.selectNodeContents(t);
+          range.collapse(false);
+          sel.removeAllRanges();
+          sel.addRange(range);
+      }
+      store[key][idx].a = parseFloat(cleanVal) || 0;
+    } else {
+      store[key][idx].t = t.textContent.trim();
+    }
     persist();
     recalc();
   }
-  if ((t.classList.contains('m-amount') || t.classList.contains('m-title')) && modalDay){
-    const item = t.closest('.modal-item');
+});
+
+document.addEventListener('change', e => {
+  if (e.target.classList.contains('tx-type')) {
+    const txRow = e.target.closest('tr.day');
+    if (!txRow) return;
+    const key = txRow.dataset.key;
+    const dayRows = [...tbody.querySelectorAll(`tr.day[data-key="${key}"]`)];
+    const idx = dayRows.indexOf(txRow);
+    if (!store[key]) store[key] = [];
+    if (!store[key][idx]) store[key][idx] = { a:0, t:'', type:'' };
+    store[key][idx].type = e.target.value;
+    persist();
+  }
+  if (e.target.classList.contains('m-type') && modalDay) {
+    const item = e.target.closest('.modal-item');
     const txs = store[modalDay.dataset.key] || [];
     const i = +item.dataset.idx;
     if (!txs[i]) return;
-    if (t.classList.contains('m-amount')) txs[i].a = parseFloat(t.value) || 0;
-    else txs[i].t = t.value;
+    txs[i].type = e.target.value;
     persist();
     syncDayGroup(modalDay.dataset.key);
     recalc();
-    updateModalSum();
   }
 });
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && !overlay.hidden){ closeModal(); return; }
-  if (e.key === 'Enter'){
-    if (e.target.classList.contains('title')){
-      e.preventDefault();
-      const day = e.target.closest('tr.day-first');
-      if (day) addTxToDay(day);
-    } else if (e.target.classList.contains('m-title')){
-      e.preventDefault();
-      modalAdd();
+  
+  if (e.key === 'Enter' && (e.target.classList.contains('editable-amount') || e.target.classList.contains('editable-title'))) {
+    e.preventDefault();
+    const txRow = e.target.closest('tr.day');
+    const key = txRow.dataset.key;
+    const firstRow = tbody.querySelector(`tr.day-first[data-key="${key}"]`);
+    if (firstRow) {
+      addTxToDay(firstRow);
     }
+  }
+  
+  if (e.key === 'Enter' && e.target.classList.contains('m-title')){
+    e.preventDefault();
+    modalAdd();
   }
 });
 
-/* ---------- Toggle ستون تراکنش‌ها ---------- */
 const toggleBtn = document.getElementById('toggleTx');
 function applyTxLabel(){
   const isHidden = table.classList.contains('hide-tx');
-  toggleBtn.querySelector('.toggle-text').textContent = isHidden
-    ? 'نمایش ستون تراکنش‌ها'
-    : 'پنهان‌سازی ستون تراکنش‌ها';
+  toggleBtn.querySelector('.toggle-text').textContent = isHidden ? 'نمایش ستون تراکنش‌ها' : 'پنهان‌سازی ستون تراکنش‌ها';
   toggleBtn.querySelector('span:first-child').textContent = isHidden ? '▦' : '▤';
 }
 toggleBtn.onclick = () => {
@@ -921,11 +930,8 @@ toggleBtn.onclick = () => {
 if (localStorage.getItem(LS_HIDE) === '1') table.classList.add('hide-tx');
 applyTxLabel();
 
-/* ---------- Export / Import ---------- */
 document.getElementById('exportBtn').onclick = () => {
-  const blob = new Blob([JSON.stringify(
-    { app:'daily-ledger', exported:new Date().toISOString(), tx:store }, null, 2)],
-    { type:'application/json' });
+  const blob = new Blob([JSON.stringify({ app:'daily-ledger', exported:new Date().toISOString(), tx:store }, null, 2)], { type:'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'ledger-' + toShamsi(today).replaceAll('/', '-') + '.json';
@@ -944,8 +950,7 @@ document.getElementById('importFile').addEventListener('change', e => {
       const clean = {};
       for (const [k, v] of Object.entries(obj)){
         if (typeof k !== 'string' || !Array.isArray(v)) continue;
-        const txs = v.map(t => ({ a: parseFloat(t.a) || 0, t: String(t.t ?? '') }))
-                     .filter(t => t.a !== 0 || t.t.trim() !== '');
+        const txs = v.map(t => ({ a: parseFloat(t.a) || 0, t: String(t.t ?? ''), type: String(t.type ?? '') })).filter(t => t.a !== 0 || t.t.trim() !== '' || t.type);
         if (txs.length) clean[k] = txs;
       }
       store = clean;
@@ -958,7 +963,390 @@ document.getElementById('importFile').addEventListener('change', e => {
   reader.readAsText(file);
 });
 
-/* ---------- شروع ---------- */
+document.getElementById('exportCsvBtn').onclick = () => {
+  const keys = Object.keys(store).sort();
+  if (keys.length === 0){
+    alert('هنوز تراکنشی برای خروجی وجود ندارد.');
+    return;
+  }
+  
+  let csv = '\uFEFF';
+  csv += 'تاریخ;نوع;مبلغ;عنوان\n';
+  
+  keys.forEach(date => {
+    const txs = store[date] || [];
+    txs.forEach(tx => {
+      const type = tx.type || '';
+      const amount = tx.a || 0;
+      const title = (tx.t || '').replace(/"/g, '""');
+      csv += `${date};${type};${amount};"${title}"\n`;
+    });
+  });
+  
+  const blob = new Blob([csv], { type:'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'ledger-' + toShamsi(today).replaceAll('/', '-') + '.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
+document.getElementById('importCsvFile').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      let text = reader.result;
+      
+      if (text.charCodeAt(0) === 0xFEFF) {
+        text = text.slice(1);
+      }
+      
+      const lines = text.split(/\r?\n/).filter(line => line.trim());
+      if (lines.length < 2) {
+        alert('فایل CSV خالی یا نامعتبر است.');
+        return;
+      }
+      
+      const header = lines[0].split(';');
+      if (header.length < 4) {
+        alert('فرمت CSV نامعتبر است. باید شامل ستون‌های تاریخ، نوع، مبلغ و عنوان باشد.');
+        return;
+      }
+      
+      const clean = {};
+      
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i];
+        if (!line.trim()) continue;
+        
+        const parts = [];
+        let current = '';
+        let inQuotes = false;
+        
+        for (let j = 0; j < line.length; j++) {
+          const char = line[j];
+          if (char === '"') {
+            if (inQuotes && line[j + 1] === '"') {
+              current += '"';
+              j++;
+            } else {
+              inQuotes = !inQuotes;
+            }
+          } else if (char === ';' && !inQuotes) {
+            parts.push(current);
+            current = '';
+          } else {
+            current += char;
+          }
+        }
+        parts.push(current);
+        
+        if (parts.length < 4) continue;
+        
+        const date = parts[0].trim();
+        const type = parts[1].trim();
+        const amount = parseFloat(parts[2]) || 0;
+        const title = parts[3].trim();
+        
+        if (!/^\d{4}\/\d{2}\/\d{2}$/.test(date)) {
+          console.warn(`خط ${i + 1}: فرمت تاریخ نامعتبر - ${date}`);
+          continue;
+        }
+        
+        if (!clean[date]) clean[date] = [];
+        if (amount !== 0 || title !== '' || type !== '') {
+          clean[date].push({ a: amount, t: title, type: type });
+        }
+      }
+      
+      if (Object.keys(clean).length === 0) {
+        alert('هیچ داده معتبری در فایل یافت نشد.');
+        return;
+      }
+      
+      const confirmMerge = confirm(`تعداد ${Object.keys(clean).length} روز با تراکنش‌های جدید یافت شد.\n\nآیا می‌خواهید داده‌ها با داده‌های فعلی ادغام شوند؟\n\n"تأیید" = ادغام\n"لغو" = جایگزینی کامل`);
+      
+      if (confirmMerge) {
+        for (const [date, txs] of Object.entries(clean)) {
+          if (!store[date]) store[date] = [];
+          store[date].push(...txs);
+        }
+      } else {
+        store = clean;
+      }
+      
+      persist();
+      rebuild();
+      alert('داده‌ها با موفقیت وارد شدند.');
+      
+    } catch (err) {
+      console.error('خطا در خواندن CSV:', err);
+      alert('خطا در پردازش فایل CSV.');
+    }
+    e.target.value = '';
+  };
+  reader.readAsText(file, 'UTF-8');
+});
+
+document.getElementById('exportHtmlBtn').onclick = () => {
+  const keys = Object.keys(store).sort();
+  if (keys.length === 0){
+    alert('هنوز تراکنشی برای خروجی وجود ندارد.');
+    return;
+  }
+  
+  let totalIncome = 0, totalExpense = 0, totalTx = 0;
+  let htmlRows = '';
+  let balance = 0;
+  
+  keys.forEach(date => {
+    const txs = store[date] || [];
+    let daySum = 0;
+    
+    txs.forEach((tx, idx) => {
+      const amount = tx.a || 0;
+      const title = tx.t || '-';
+      const type = tx.type || '';
+      const typeInfo = TX_TYPES[type] || { label: '-', icon: '', color: '#64748b' };
+      daySum += amount;
+      
+      if (amount > 0) totalIncome += amount;
+      else if (amount < 0) totalExpense += Math.abs(amount);
+      totalTx++;
+      
+      const amountClass = amount > 0 ? 'pos' : amount < 0 ? 'neg' : '';
+      const amountStr = amount !== 0 ? amount.toLocaleString('fa-IR') : '-';
+      
+      htmlRows += `<tr>
+        <td class="date">${idx === 0 ? date : ''}</td>
+        <td class="type" style="color:${typeInfo.color}">${typeInfo.icon} ${typeInfo.label}</td>
+        <td class="amount ${amountClass}">${amountStr}</td>
+        <td class="title">${title}</td>
+        <td class="daily">${idx === txs.length - 1 && daySum !== 0 ? daySum.toLocaleString('fa-IR') : ''}</td>
+        <td class="balance">${idx === txs.length - 1 ? (balance + daySum).toLocaleString('fa-IR') : ''}</td>
+      </tr>`;
+    });
+    
+    balance += daySum;
+  });
+  
+  const finalBalance = totalIncome - totalExpense;
+  
+  const html = `<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>گزارش تراکنش‌ها - ${toShamsi(today)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
+    background: #f8fafc;
+    color: #0f172a;
+    padding: 20px;
+    line-height: 1.6;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    overflow: hidden;
+  }
+  .header {
+    background: linear-gradient(135deg, #0d9488, #0f766e);
+    color: #fff;
+    padding: 24px;
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .header p {
+    font-size: 1rem;
+    opacity: 0.9;
+  }
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    padding: 24px;
+    background: #f1f5f9;
+    border-bottom: 2px solid #000;
+  }
+  .summary-item {
+    background: #fff;
+    padding: 16px;
+    border-radius: 8px;
+    border: 2px solid #000;
+    text-align: center;
+  }
+  .summary-item .label {
+    font-size: 0.9rem;
+    color: #475569;
+    margin-bottom: 8px;
+  }
+  .summary-item .value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .summary-item .value.pos { color: #0f766e; }
+  .summary-item .value.neg { color: #dc2626; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  thead {
+    background: #f1f5f9;
+    position: sticky;
+    top: 0;
+  }
+  th {
+    padding: 14px 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    border-bottom: 2.5px solid #000;
+    border-right: 1.5px solid #000;
+    text-align: center;
+  }
+  th:last-child { border-right: none; }
+  td {
+    padding: 12px;
+    border-bottom: 1.5px solid #000;
+    border-right: 1.5px solid #000;
+    text-align: center;
+    font-size: 0.95rem;
+  }
+  td:last-child { border-right: none; }
+  td.date {
+    font-weight: 600;
+    background: #f8fafc;
+    white-space: nowrap;
+  }
+  td.type {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  td.amount {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  td.title {
+    text-align: right;
+    direction: rtl;
+  }
+  td.daily, td.balance {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    background: #f8fafc;
+  }
+  .pos { color: #0f766e; }
+  .neg { color: #dc2626; }
+  tbody tr:hover {
+    background: #f0fdfa;
+  }
+  .footer {
+    padding: 16px 24px;
+    background: #f1f5f9;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #475569;
+    border-top: 2px solid #000;
+  }
+  @media print {
+    body { padding: 0; }
+    .container { box-shadow: none; }
+  }
+  @media (max-width: 768px) {
+    .header h1 { font-size: 1.4rem; }
+    .summary { grid-template-columns: 1fr; }
+    th, td { padding: 8px 6px; font-size: 0.85rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>💰 گزارش تراکنش‌ها</h1>
+    <p>تاریخ تهیه گزارش: ${new Intl.DateTimeFormat('fa-IR', { dateStyle:'full' }).format(new Date())}</p>
+  </div>
+  
+  <div class="summary">
+    <div class="summary-item">
+      <div class="label">تعداد روزها</div>
+      <div class="value">${keys.length.toLocaleString('fa-IR')}</div>
+    </div>
+    <div class="summary-item">
+      <div class="label">تعداد تراکنش‌ها</div>
+      <div class="value">${totalTx.toLocaleString('fa-IR')}</div>
+    </div>
+    <div class="summary-item">
+      <div class="label">جمع درآمد</div>
+      <div class="value pos">${totalIncome.toLocaleString('fa-IR')}</div>
+    </div>
+    <div class="summary-item">
+      <div class="label">جمع هزینه</div>
+      <div class="value neg">${totalExpense.toLocaleString('fa-IR')}</div>
+    </div>
+    <div class="summary-item">
+      <div class="label">مانده نهایی</div>
+      <div class="value ${finalBalance >= 0 ? 'pos' : 'neg'}">${finalBalance.toLocaleString('fa-IR')}</div>
+    </div>
+  </div>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>تاریخ</th>
+        <th>نوع</th>
+        <th>مبلغ</th>
+        <th>عنوان</th>
+        <th>جمع روز</th>
+        <th>مانده</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${htmlRows}
+    </tbody>
+  </table>
+  
+  <div class="footer">
+    تولید شده توسط دفترچهٔ روزانه تراکنش‌ها
+  </div>
+</div>
+</body>
+</html>`;
+  
+  const blob = new Blob([html], { type:'text/html;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'ledger-report-' + toShamsi(today).replaceAll('/', '-') + '.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
+document.getElementById('clearBtn').onclick = () => {
+  const confirmClear = confirm('آیا مطمئن هستید که می‌خواهید تمام داده‌ها را پاک کنید؟\n\nاین عمل قابل بازگشت نیست!');
+  if (confirmClear) {
+    localStorage.removeItem(LS_TX);
+    store = {};
+    rebuild();
+    alert('تمام داده‌ها پاک شدند.');
+  }
+};
+
+initChart();
+applyChartVisibility();
 rebuild();
 </script>
 </body>
