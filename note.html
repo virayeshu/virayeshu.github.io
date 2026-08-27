@@ -76,34 +76,48 @@
   /* ─── LAYOUT ─── */
   .app{display:flex;flex:1;overflow:hidden}
 
-  /* ─── EDITOR (first in DOM for LTR) ─── */
+  /* ─── EDITOR ─── */
   .editor-area{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg);order:1}
+
+  /* ─── COMPACT TOOLBAR ─── */
   .editor-toolbar{
-    display:flex;align-items:center;gap:6px;padding:6px 12px;
+    display:flex;align-items:center;gap:4px;padding:4px 8px;
     background:var(--surface);border-bottom:1px solid var(--border);
     flex-shrink:0;flex-wrap:wrap;
   }
-  .toolbar-group{display:flex;align-items:center;gap:4px}
-  .toolbar-sep{width:1px;height:20px;background:var(--border);margin:0 4px}
-  .toolbar-label{font-size:.7rem;color:var(--text3);margin-right:2px}
+  .toolbar-group{display:flex;align-items:center;gap:2px}
+  .toolbar-sep{width:1px;height:16px;background:var(--border);margin:0 3px}
+  .toolbar-label{font-size:.65rem;color:var(--text3);margin-right:1px;user-select:none}
+
+  .tb-btn{
+    height:22px;min-width:22px;padding:0 6px;
+    display:inline-flex;align-items:center;justify-content:center;gap:2px;
+    background:var(--surface2);border:1px solid var(--border);
+    border-radius:4px;color:var(--text2);cursor:pointer;
+    transition:var(--transition);font-family:inherit;
+    font-size:.7rem;font-weight:600;white-space:nowrap;
+  }
+  .tb-btn:hover{background:var(--surface3);border-color:var(--accent);color:var(--accent)}
+  .tb-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  .tb-btn .ico{font-size:.75rem;line-height:1}
+
   .font-size-select{
     background:var(--surface2);border:1px solid var(--border);
-    color:var(--text);border-radius:var(--radius-sm);padding:3px 6px;
-    font-size:.75rem;cursor:pointer;outline:none;font-family:inherit;
+    color:var(--text);border-radius:4px;padding:2px 4px;
+    font-size:.7rem;cursor:pointer;outline:none;font-family:inherit;
+    height:22px;
   }
   .font-size-select:focus{border-color:var(--accent)}
 
   .editor-wrap{
-    flex:1;display:flex;overflow:hidden;position:relative;
-    padding:0;
+    flex:1;display:flex;overflow:hidden;position:relative;padding:0;
   }
   .line-numbers{
     flex-shrink:0;padding:10px 8px 10px 12px;
     background:var(--surface);border-left:1px solid var(--border);
     color:var(--line-num);font-family:'Consolas','Courier New',monospace;
     font-size:var(--font-size);line-height:var(--line-height);
-    text-align:right;user-select:none;overflow:hidden;
-    min-width:40px;
+    text-align:right;user-select:none;overflow:hidden;min-width:40px;
   }
   .line-numbers .line-num{display:block}
   .line-numbers .line-num.active{color:var(--line-num-active);font-weight:700}
@@ -119,7 +133,6 @@
   .editor-content.rtl{direction:rtl;text-align:right}
   .editor-content.ltr{direction:ltr;text-align:left}
 
-  /* RTL: line numbers on right */
   .editor-wrap.rtl{flex-direction:row-reverse}
   .editor-wrap.rtl .line-numbers{
     border-left:none;border-right:1px solid var(--border);
@@ -133,13 +146,12 @@
   .empty-state .icon{font-size:3rem;opacity:.3}
   .empty-state p{font-size:.9rem}
 
-  /* ─── SIDEBAR (moved to right via order) ─── */
+  /* ─── SIDEBAR ─── */
   .sidebar{
     width:var(--sidebar-w);flex-shrink:0;background:var(--surface);
     border-right:1px solid var(--border);
     display:flex;flex-direction:column;
-    overflow:hidden;transition:var(--transition);
-    order:2;
+    overflow:hidden;transition:var(--transition);order:2;
   }
   .sidebar-head{
     padding:8px 10px;border-bottom:1px solid var(--border);
@@ -169,10 +181,6 @@
     outline:none;color:var(--text2);
   }
   .tab-item.active .tab-title{color:var(--text);font-weight:600}
-  .tab-title[contenteditable="true"]{
-    background:var(--surface3);padding:1px 5px;border-radius:3px;
-    white-space:pre-wrap;color:var(--text);
-  }
   .tab-delete{
     opacity:0;border:none;background:none;color:var(--text3);
     cursor:pointer;font-size:.85rem;padding:0 3px;border-radius:3px;
@@ -251,7 +259,6 @@
     }
     .sidebar-overlay.show{display:block}
     .search-box input{width:100px}
-    .search-box.collapsed{display:none}
     .footer{flex-wrap:wrap;height:auto;padding:6px 10px;gap:4px}
   }
   @media(max-width:480px){
@@ -279,7 +286,6 @@
 <div class="app">
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-  <!-- Editor (left side in LTR) -->
   <main class="editor-area" id="editorArea">
     <div class="empty-state" id="emptyState">
       <div class="icon">📄</div>
@@ -287,33 +293,41 @@
       <button class="footer-btn" style="height:32px;padding:6px 14px;font-size:.82rem" onclick="addNote()">＋ New Note</button>
     </div>
     <div id="editorContainer" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <!-- COMPACT TOOLBAR -->
       <div class="editor-toolbar">
         <div class="toolbar-group">
           <span class="toolbar-label">Align:</span>
-          <button class="icon-btn" id="alignLtrBtn" onclick="setAlign('ltr')" title="Left-to-Right">⇥ LTR</button>
-          <button class="icon-btn" id="alignRtlBtn" onclick="setAlign('rtl')" title="Right-to-Left">⇤ RTL</button>
+          <button class="tb-btn" id="alignLtrBtn" onclick="setAlign('ltr')" title="Left-to-Right">⇥</button>
+          <button class="tb-btn" id="alignRtlBtn" onclick="setAlign('rtl')" title="Right-to-Left">⇤</button>
         </div>
         <div class="toolbar-sep"></div>
         <div class="toolbar-group">
           <span class="toolbar-label">Font:</span>
           <select class="font-size-select" id="fontSizeSelect" onchange="setFontSize(this.value)">
-            <option value="12">12px</option>
-            <option value="13">13px</option>
-            <option value="14">14px</option>
-            <option value="15" selected>15px</option>
-            <option value="16">16px</option>
-            <option value="18">18px</option>
-            <option value="20">20px</option>
-            <option value="22">22px</option>
-            <option value="24">24px</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15" selected>15</option>
+            <option value="16">16</option>
+            <option value="18">18</option>
+            <option value="20">20</option>
+            <option value="22">22</option>
+            <option value="24">24</option>
           </select>
         </div>
         <div class="toolbar-sep"></div>
         <div class="toolbar-group">
           <span class="toolbar-label">Lines:</span>
-          <button class="icon-btn active" id="lineNumBtn" onclick="toggleLineNumbers()" title="Toggle line numbers">#</button>
+          <button class="tb-btn active" id="lineNumBtn" onclick="toggleLineNumbers()" title="Toggle line numbers">#</button>
+        </div>
+        <div class="toolbar-sep"></div>
+        <div class="toolbar-group">
+          <button class="tb-btn" onclick="renameNote()" title="Rename note">
+            <span class="ico">✏️</span><span>Rename</span>
+          </button>
         </div>
       </div>
+
       <div class="editor-wrap" id="editorWrap">
         <div class="line-numbers" id="lineNumbers"></div>
         <textarea class="editor-content ltr" id="editorContent" placeholder="Start typing..."></textarea>
@@ -321,7 +335,6 @@
     </div>
   </main>
 
-  <!-- Sidebar (right side in LTR) -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-head">
       <h2>Notes</h2>
@@ -395,10 +408,7 @@ function loadSettings() {
     if (raw) settings = { ...settings, ...JSON.parse(raw) };
   } catch {}
 }
-
-function saveSettings() {
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-}
+function saveSettings() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }
 
 function applySettings() {
   document.documentElement.setAttribute('data-theme', settings.theme);
@@ -411,28 +421,20 @@ function applySettings() {
 
 function toggleTheme() {
   settings.theme = settings.theme === 'dark' ? 'light' : 'dark';
-  saveSettings();
-  applySettings();
-  updateLineNumbers();
+  saveSettings(); applySettings(); updateLineNumbers();
 }
-
 function setFontSize(size) {
   settings.fontSize = parseInt(size);
-  saveSettings();
-  applySettings();
-  updateLineNumbers();
+  saveSettings(); applySettings(); updateLineNumbers();
 }
-
 function setAlign(dir) {
   settings.align = dir;
-  saveSettings();
-  updateAlignUI();
+  saveSettings(); updateAlignUI();
   if (activeId) {
     const note = getActiveNote();
     if (note) { note.align = dir; note.updatedAt = Date.now(); debouncedSave(); }
   }
 }
-
 function updateAlignUI() {
   const content = document.getElementById('editorContent');
   const wrap = document.getElementById('editorWrap');
@@ -443,13 +445,10 @@ function updateAlignUI() {
   document.getElementById('alignLtrBtn').classList.toggle('active', settings.align === 'ltr');
   document.getElementById('alignRtlBtn').classList.toggle('active', settings.align === 'rtl');
 }
-
 function toggleLineNumbers() {
   settings.showLineNumbers = !settings.showLineNumbers;
-  saveSettings();
-  updateLineNumbersUI();
+  saveSettings(); updateLineNumbersUI();
 }
-
 function updateLineNumbersUI() {
   const ln = document.getElementById('lineNumbers');
   const btn = document.getElementById('lineNumBtn');
@@ -464,7 +463,6 @@ function loadFromStorage() {
     if (raw) notes = JSON.parse(raw);
   } catch { notes = []; }
 }
-
 function saveToStorage() {
   setSaveStatus('saving');
   try {
@@ -476,13 +474,11 @@ function saveToStorage() {
     console.error('Storage error:', e);
   }
 }
-
 function debouncedSave() {
   setSaveStatus('saving');
   clearTimeout(saveTimer);
   saveTimer = setTimeout(saveToStorage, DEBOUNCE_MS);
 }
-
 function setSaveStatus(status) {
   const el = document.getElementById('saveStatus');
   el.className = 'save-status ' + status;
@@ -500,15 +496,14 @@ function generateId() {
 function addNote() {
   const note = {
     id: generateId(),
+    title: '',           // ← new field
     content: '',
     align: settings.align,
     createdAt: Date.now(),
     updatedAt: Date.now()
   };
   notes.unshift(note);
-  saveToStorage();
-  renderTabs();
-  selectNote(note.id);
+  saveToStorage(); renderTabs(); selectNote(note.id);
   document.getElementById('editorContent').focus();
   closeSidebarMobile();
 }
@@ -521,8 +516,7 @@ function deleteNote(id, e) {
     if (notes.length > 0) selectNote(notes[0].id);
     else showEmpty();
   }
-  saveToStorage();
-  renderTabs();
+  saveToStorage(); renderTabs();
 }
 
 function selectNote(id) {
@@ -542,27 +536,38 @@ function selectNote(id) {
   document.getElementById('editorWrap').classList.remove('ltr','rtl');
   document.getElementById('editorWrap').classList.add(noteAlign);
 
-  updateActiveTab();
-  updateLineNumbers();
+  updateActiveTab(); updateLineNumbers();
   localStorage.setItem(STORAGE_KEY + '_active', id);
 }
 
 function showEmpty() {
   document.getElementById('emptyState').style.display = 'flex';
   document.getElementById('editorContainer').style.display = 'none';
-  activeId = null;
-  updateActiveTab();
+  activeId = null; updateActiveTab();
 }
 
-function getActiveNote() {
-  return notes.find(n => n.id === activeId);
-}
+function getActiveNote() { return notes.find(n => n.id === activeId); }
 
+// Title priority: explicit title → first line of content → "Untitled Note"
 function getNoteTitle(note) {
+  if (note.title && note.title.trim()) return note.title.trim();
   if (!note.content) return 'Untitled Note';
   const firstLine = note.content.split('\n')[0].trim();
   if (!firstLine) return 'Untitled Note';
   return firstLine.length > 40 ? firstLine.substring(0, 40) + '...' : firstLine;
+}
+
+// ─── RENAME ───
+function renameNote() {
+  const note = getActiveNote();
+  if (!note) { alert('No note is selected.'); return; }
+  const current = note.title || '';
+  const result = prompt('Enter note title (leave empty to use first line of content):', current);
+  if (result === null) return; // cancelled
+  note.title = result.trim();
+  note.updatedAt = Date.now();
+  renderTabs();
+  debouncedSave();
 }
 
 // ─── RENDER TABS ───
@@ -573,18 +578,15 @@ function renderTabs() {
 
   const filtered = notes.filter(n => {
     if (!query) return true;
-    return (n.content || '').toLowerCase().includes(query);
+    const t = getNoteTitle(n).toLowerCase();
+    return t.includes(query) || (n.content || '').toLowerCase().includes(query);
   });
 
   list.innerHTML = filtered.map(n => `
     <div class="tab-item ${n.id === activeId ? 'active' : ''}"
          data-id="${n.id}" onclick="selectNote('${n.id}');closeSidebarMobile()">
       <span class="tab-icon">📄</span>
-      <span class="tab-title"
-            contenteditable="false"
-            ondblclick="startRename(event,'${n.id}')"
-            onblur="finishRename(event,'${n.id}')"
-            onkeydown="renameKeydown(event,'${n.id}')">${escapeHtml(getNoteTitle(n))}</span>
+      <span class="tab-title">${escapeHtml(getNoteTitle(n))}</span>
       <button class="tab-delete" onclick="deleteNote('${n.id}',event)" title="Delete">✕</button>
     </div>
   `).join('');
@@ -599,46 +601,16 @@ function updateActiveTab() {
     el.classList.toggle('active', el.dataset.id === activeId);
   });
 }
-
 function updateTabTitle(id) {
   const note = notes.find(n => n.id === id);
   if (!note) return;
   const tab = document.querySelector(`.tab-item[data-id="${id}"] .tab-title`);
-  if (tab && tab.contentEditable !== 'true') {
-    tab.textContent = getNoteTitle(note);
-  }
-}
-
-// ─── RENAME ───
-function startRename(e, id) {
-  e.stopPropagation();
-  const el = e.target;
-  el.contentEditable = 'true';
-  el.focus();
-  const range = document.createRange();
-  range.selectNodeContents(el);
-  const sel = window.getSelection();
-  sel.removeAllRanges();
-  sel.addRange(range);
-}
-
-function finishRename(e, id) {
-  const el = e.target;
-  el.contentEditable = 'false';
-  const note = notes.find(n => n.id === id);
-  if (!note) return;
-  el.textContent = getNoteTitle(note);
-}
-
-function renameKeydown(e, id) {
-  if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); }
-  if (e.key === 'Escape') { e.target.blur(); }
+  if (tab) tab.textContent = getNoteTitle(note);
 }
 
 // ─── EDITOR EVENTS ───
 function setupEditorEvents() {
   const content = document.getElementById('editorContent');
-
   content.addEventListener('input', () => {
     const note = getActiveNote();
     if (!note) return;
@@ -648,11 +620,9 @@ function setupEditorEvents() {
     updateLineNumbers();
     debouncedSave();
   });
-
   content.addEventListener('scroll', () => {
     document.getElementById('lineNumbers').scrollTop = content.scrollTop;
   });
-
   content.addEventListener('keyup', updateCurrentLine);
   content.addEventListener('click', updateCurrentLine);
 }
@@ -680,10 +650,10 @@ function updateLineNumbers() {
     width:${content.clientWidth - 28}px;padding:0;box-sizing:content-box;
   `;
   document.body.appendChild(mirror);
-
   const text = content.value || '';
   mirror.textContent = text;
-  const totalLines = Math.max(1, Math.ceil(mirror.scrollHeight / parseFloat(getComputedStyle(content).lineHeight) || settings.fontSize * 1.2));
+  const lh = parseFloat(getComputedStyle(content).lineHeight) || settings.fontSize * 1.2;
+  const totalLines = Math.max(1, Math.ceil(mirror.scrollHeight / lh));
   document.body.removeChild(mirror);
 
   const beforeCursor = text.substring(0, content.selectionStart);
@@ -698,9 +668,7 @@ function updateLineNumbers() {
 }
 
 // ─── SEARCH ───
-function onSearch() {
-  renderTabs();
-}
+function onSearch() { renderTabs(); }
 
 // ─── EXPORT / IMPORT / CLEAR ───
 function exportData() {
@@ -725,21 +693,17 @@ function importData(event) {
         notes = data.notes;
         if (data.settings) {
           settings = { ...settings, ...data.settings };
-          saveSettings();
-          applySettings();
+          saveSettings(); applySettings();
         }
         activeId = null;
-        saveToStorage();
-        renderTabs();
+        saveToStorage(); renderTabs();
         if (notes.length > 0) selectNote(notes[0].id);
         else showEmpty();
         alert('✅ Imported successfully! (' + notes.length + ' notes)');
       } else {
         alert('❌ Invalid file format.');
       }
-    } catch {
-      alert('❌ Error reading file.');
-    }
+    } catch { alert('❌ Error reading file.'); }
   };
   reader.readAsText(file);
   event.target.value = '';
@@ -749,14 +713,10 @@ function showClearModal() { document.getElementById('clearModal').classList.add(
 function hideClearModal() { document.getElementById('clearModal').classList.remove('show'); }
 
 function clearAllData() {
-  notes = [];
-  activeId = null;
+  notes = []; activeId = null;
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(STORAGE_KEY + '_active');
-  renderTabs();
-  showEmpty();
-  setSaveStatus('saved');
-  hideClearModal();
+  renderTabs(); showEmpty(); setSaveStatus('saved'); hideClearModal();
 }
 
 // ─── RESPONSIVE ───
@@ -764,12 +724,10 @@ function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('open');
   document.getElementById('sidebarOverlay').classList.toggle('show');
 }
-
 function closeSidebarMobile() {
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('sidebarOverlay').classList.remove('show');
 }
-
 function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
@@ -778,21 +736,15 @@ function escapeHtml(str) {
 
 // ─── KEYBOARD SHORTCUTS ───
 document.addEventListener('keydown', (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
-    e.preventDefault();
-    addNote();
-  }
-  if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
-    e.preventDefault();
-    document.getElementById('searchInput').focus();
+  if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); addNote(); }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'f') { e.preventDefault(); document.getElementById('searchInput').focus(); }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'r' && !e.shiftKey && document.activeElement.tagName !== 'TEXTAREA') {
+    e.preventDefault(); renameNote();
   }
 });
 
-window.addEventListener('resize', () => {
-  if (activeId) updateLineNumbers();
-});
+window.addEventListener('resize', () => { if (activeId) updateLineNumbers(); });
 
-// ─── START ───
 init();
 </script>
 </body>
