@@ -3,12 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Notepad</title>
+<title>Notepad Pro</title>
+<!-- Fonts: Vazirmatn for RTL, Fira Code for LTR -->
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
+<!-- Markdown Parser -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
   /* ─── THEME VARIABLES ─── */
-  :root{
+  :root {
     --bg:#0a0b10;--surface:#13151c;--surface2:#1b1e28;--surface3:#262a38;
     --border:#3a3f55;--border-strong:#5a6080;
     --text:#ffffff;--text2:#d4d7e5;--text3:#8a8fa8;
@@ -21,9 +26,10 @@
     --sidebar-w:240px;
     --header-h:44px;--footer-h:38px;
     --transition:all .2s cubic-bezier(.4,0,.2,1);
-    --font-size:15px;--line-height:1.2;
+    --font-size:15px;--line-height:1.6;
   }
-  [data-theme="light"]{
+
+  [data-theme="light"] {
     --bg:#ffffff;--surface:#f0f1f5;--surface2:#e4e6ec;--surface3:#d5d8e0;
     --border:#b8bcc8;--border-strong:#8a90a5;
     --text:#0a0b10;--text2:#2a2d3a;--text3:#5a5f75;
@@ -34,9 +40,65 @@
     --line-num:#8a90a5;--line-num-active:#5a47e0;
   }
 
+  [data-theme="nord"] {
+    --bg:#2E3440;--surface:#3B4252;--surface2:#434C5E;--surface3:#4C566A;
+    --border:#4C566A;--border-strong:#616E88;
+    --text:#ECEFF4;--text2:#D8DEE9;--text3:#93A1A1;
+    --accent:#88C0D0;--accent2:#81A1C1;--accent-glow:rgba(136,192,208,.2);
+    --danger:#BF616A;--danger-bg:rgba(191,97,106,.15);
+    --success:#A3BE8C;--success-bg:rgba(163,190,140,.15);
+    --warn:#EBCB8B;--warn-bg:rgba(235,203,139,.15);
+    --line-num:#616E88;--line-num-active:#88C0D0;
+  }
+
+  [data-theme="dracula"] {
+    --bg:#282A36;--surface:#21222C;--surface2:#282A36;--surface3:#44475A;
+    --border:#44475A;--border-strong:#6272A4;
+    --text:#F8F8F2;--text2:#F8F8F2;--text3:#6272A4;
+    --accent:#FF79C6;--accent2:#BD93F9;--accent-glow:rgba(255,121,198,.2);
+    --danger:#FF5555;--danger-bg:rgba(255,85,85,.15);
+    --success:#50FA7B;--success-bg:rgba(80,250,123,.15);
+    --warn:#F1FA8C;--warn-bg:rgba(241,250,140,.15);
+    --line-num:#6272A4;--line-num-active:#FF79C6;
+  }
+
+  [data-theme="green"] {
+    --bg:#022c22;--surface:#064e3b;--surface2:#065f46;--surface3:#047857;
+    --border:#059669;--border-strong:#10b981;
+    --text:#ecfdf5;--text2:#d1fae5;--text3:#6ee7b7;
+    --accent:#34d399;--accent2:#6ee7b7;--accent-glow:rgba(52,211,153,.2);
+    --danger:#f87171;--danger-bg:rgba(248,113,113,.15);
+    --success:#4ade80;--success-bg:rgba(74,222,128,.15);
+    --warn:#facc15;--warn-bg:rgba(250,204,21,.15);
+    --line-num:#065f46;--line-num-active:#34d399;
+  }
+
+  [data-theme="greentext"] {
+    --bg:#000000;--surface:#0a0a0a;--surface2:#111111;--surface3:#1a1a1a;
+    --border:#003300;--border-strong:#005500;
+    --text:#00ff41;--text2:#00cc33;--text3:#008000;
+    --accent:#00ff41;--accent2:#39ff14;--accent-glow:rgba(0,255,65,.15);
+    --danger:#ff0000;--danger-bg:rgba(255,0,0,.1);
+    --success:#00ff41;--success-bg:rgba(0,255,65,.1);
+    --warn:#ffff00;--warn-bg:rgba(255,255,0,.1);
+    --line-num:#004400;--line-num-active:#00ff41;
+  }
+
+  [data-theme="green-hc"] {
+    --bg:#000000;--surface:#001100;--surface2:#002200;--surface3:#003300;
+    --border:#00ff00;--border-strong:#00ff41;
+    --text:#00ff41;--text2:#39ff14;--text3:#00cc33;
+    --accent:#ffff00;--accent2:#ffffff;--accent-glow:rgba(255,255,0,.3);
+    --danger:#ff0000;--danger-bg:rgba(255,0,0,.2);
+    --success:#00ff41;--success-bg:rgba(0,255,65,.2);
+    --warn:#ffff00;--warn-bg:rgba(255,255,0,.2);
+    --line-num:#005500;--line-num-active:#ffff00;
+  }
+
   html{font-size:var(--font-size)}
   body{
-    font-family:'Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--text);
+    font-family:'Segoe UI', Tahoma, sans-serif;
+    background:var(--bg);color:var(--text);
     display:flex;flex-direction:column;height:100dvh;overflow:hidden;
     transition:background .3s,color .3s;
   }
@@ -53,8 +115,7 @@
   .search-box{
     display:flex;align-items:center;gap:6px;background:var(--surface2);
     border:1px solid var(--border);border-radius:var(--radius-sm);
-    padding:0 10px;height:30px;transition:var(--transition);
-    min-width:0;
+    padding:0 10px;height:30px;transition:var(--transition);min-width:0;
   }
   .search-box:focus-within{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-glow)}
   .search-box input{
@@ -70,8 +131,15 @@
     font-size:.9rem;flex-shrink:0;
   }
   .icon-btn:hover{background:var(--surface3);border-color:var(--accent);color:var(--accent)}
-  .icon-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
   .mobile-toggle{display:none}
+
+  .theme-select, .font-size-select {
+    background:var(--surface2);border:1px solid var(--border);
+    color:var(--text);border-radius:var(--radius-sm);padding:0 8px;
+    font-size:.75rem;cursor:pointer;outline:none;font-family:inherit;
+    height:30px;transition:var(--transition);
+  }
+  .theme-select:focus, .font-size-select:focus {border-color:var(--accent)}
 
   /* ─── LAYOUT ─── */
   .app{display:flex;flex:1;overflow:hidden}
@@ -79,45 +147,36 @@
   /* ─── EDITOR ─── */
   .editor-area{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg);order:1}
 
-  /* ─── COMPACT TOOLBAR ─── */
   .editor-toolbar{
     display:flex;align-items:center;gap:4px;padding:4px 8px;
     background:var(--surface);border-bottom:1px solid var(--border);
     flex-shrink:0;flex-wrap:wrap;
   }
   .toolbar-group{display:flex;align-items:center;gap:2px}
-  .toolbar-sep{width:1px;height:16px;background:var(--border);margin:0 3px}
-  .toolbar-label{font-size:.65rem;color:var(--text3);margin-right:1px;user-select:none}
+  .toolbar-sep{width:1px;height:16px;background:var(--border);margin:0 6px}
+  .toolbar-label{font-size:.65rem;color:var(--text3);margin-right:4px;user-select:none}
 
   .tb-btn{
-    height:22px;min-width:22px;padding:0 6px;
-    display:inline-flex;align-items:center;justify-content:center;gap:2px;
+    height:24px;min-width:24px;padding:0 8px;
+    display:inline-flex;align-items:center;justify-content:center;gap:4px;
     background:var(--surface2);border:1px solid var(--border);
     border-radius:4px;color:var(--text2);cursor:pointer;
     transition:var(--transition);font-family:inherit;
-    font-size:.7rem;font-weight:600;white-space:nowrap;
+    font-size:.72rem;font-weight:600;white-space:nowrap;
   }
   .tb-btn:hover{background:var(--surface3);border-color:var(--accent);color:var(--accent)}
-  .tb-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
-  .tb-btn .ico{font-size:.75rem;line-height:1}
-
-  .font-size-select{
-    background:var(--surface2);border:1px solid var(--border);
-    color:var(--text);border-radius:4px;padding:2px 4px;
-    font-size:.7rem;cursor:pointer;outline:none;font-family:inherit;
-    height:22px;
-  }
-  .font-size-select:focus{border-color:var(--accent)}
+  .tb-btn.active{background:var(--accent);border-color:var(--accent);color:#000}
+  .tb-btn .ico{font-size:.8rem;line-height:1}
 
   .editor-wrap{
     flex:1;display:flex;overflow:hidden;position:relative;padding:0;
   }
   .line-numbers{
-    flex-shrink:0;padding:10px 8px 10px 12px;
+    flex-shrink:0;padding:12px 8px 12px 12px;
     background:var(--surface);border-left:1px solid var(--border);
-    color:var(--line-num);font-family:'Consolas','Courier New',monospace;
+    color:var(--line-num);font-family:'Fira Code', 'Consolas', monospace;
     font-size:var(--font-size);line-height:var(--line-height);
-    text-align:right;user-select:none;overflow:hidden;min-width:40px;
+    text-align:right;user-select:none;overflow:hidden;min-width:45px;
   }
   .line-numbers .line-num{display:block}
   .line-numbers .line-num.active{color:var(--line-num-active);font-weight:700}
@@ -125,18 +184,63 @@
   .editor-content{
     flex:1;resize:none;background:transparent;border:none;
     color:var(--text);font-size:var(--font-size);line-height:var(--line-height);
-    font-family:'Consolas','Courier New',monospace;
-    outline:none;padding:10px 14px;overflow-y:auto;overflow-x:auto;
-    white-space:pre;
+    outline:none;padding:12px 16px;overflow-y:auto;overflow-x:auto;
+    white-space:pre-wrap;word-wrap:break-word;
   }
-  .editor-content::placeholder{color:var(--text3)}
-  .editor-content.rtl{direction:rtl;text-align:right}
-  .editor-content.ltr{direction:ltr;text-align:left}
+  .editor-content.ltr {
+    direction:ltr;text-align:left;
+    font-family:'Fira Code', 'Consolas', 'Courier New', monospace;
+  }
+  .editor-content.rtl {
+    direction:rtl;text-align:right;
+    font-family:'Vazirmatn', 'Tahoma', sans-serif;
+  }
+
+  /* Preview Mode Styles */
+  .editor-content.preview-mode {
+    white-space:pre-wrap;
+    font-family:'Vazirmatn', 'Segoe UI', sans-serif;
+  }
+  .editor-content.preview-mode h1, .editor-content.preview-mode h2, .editor-content.preview-mode h3 {
+    color:var(--accent);margin:16px 0 8px 0;border-bottom:1px solid var(--border);padding-bottom:4px;
+  }
+  .editor-content.preview-mode p {margin-bottom:12px;}
+  .editor-content.preview-mode code {
+    background:var(--surface2);padding:2px 6px;border-radius:4px;font-family:'Fira Code', monospace;font-size:0.9em;
+  }
+  .editor-content.preview-mode pre {
+    background:var(--surface2);padding:12px;border-radius:6px;overflow-x:auto;margin:12px 0;
+  }
+  .editor-content.preview-mode pre code {background:transparent;padding:0;}
+  .editor-content.preview-mode blockquote {
+    border-left:3px solid var(--accent);padding-left:12px;color:var(--text2);margin:12px 0;
+  }
+  .editor-content.preview-mode ul, .editor-content.preview-mode ol {padding-left:24px;margin-bottom:12px;}
+  
+  /* Interactive Checkbox in Preview */
+  .editor-content.preview-mode .task-list-item {
+    list-style: none;
+    margin-left: -1.5em;
+  }
+  .editor-content.preview-mode .md-checkbox {
+    accent-color: var(--accent);
+    width: 1.1em;
+    height: 1.1em;
+    cursor: pointer;
+    margin-right: 8px;
+    vertical-align: middle;
+    pointer-events: auto;
+  }
+  .editor-wrap.rtl .editor-content.preview-mode .md-checkbox {
+    margin-right: 0;
+    margin-left: 8px;
+  }
 
   .editor-wrap.rtl{flex-direction:row-reverse}
   .editor-wrap.rtl .line-numbers{
     border-left:none;border-right:1px solid var(--border);
-    text-align:left;padding:10px 12px 10px 8px;
+    text-align:left;padding:12px 12px 12px 8px;
+    font-family:'Vazirmatn', monospace;
   }
 
   .empty-state{
@@ -167,7 +271,7 @@
   .tabs-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
 
   .tab-item{
-    display:flex;align-items:center;gap:6px;padding:5px 10px;
+    display:flex;align-items:center;gap:6px;padding:6px 10px;
     border-radius:var(--radius-sm);cursor:pointer;transition:var(--transition);
     margin-bottom:1px;border:1px solid transparent;position:relative;
     font-size:.8rem;
@@ -279,7 +383,18 @@
     <span class="icon">🔍</span>
     <input type="text" id="searchInput" placeholder="Search..." oninput="onSearch()">
   </div>
-  <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+  
+  <!-- Theme Selector -->
+  <select class="theme-select" id="themeSelect" onchange="changeTheme(this.value)" title="Select Theme">
+    <option value="dark">🌙 Dark</option>
+    <option value="light">☀️ Light</option>
+    <option value="nord">❄️ Nord</option>
+    <option value="dracula">🧛 Dracula</option>
+    <option value="green">🌿 Green</option>
+    <option value="greentext">💻 Green Text</option>
+    <option value="green-hc">⚡ Green HC</option>
+  </select>
+
 </header>
 
 <!-- MAIN -->
@@ -297,12 +412,18 @@
       <div class="editor-toolbar">
         <div class="toolbar-group">
           <span class="toolbar-label">Align:</span>
-          <button class="tb-btn" id="alignLtrBtn" onclick="setAlign('ltr')" title="Left-to-Right">⇥</button>
-          <button class="tb-btn" id="alignRtlBtn" onclick="setAlign('rtl')" title="Right-to-Left">⇤</button>
+          <button class="tb-btn" id="alignLtrBtn" onclick="setAlign('ltr')" title="Left-to-Right (English)">LTR</button>
+          <button class="tb-btn" id="alignRtlBtn" onclick="setAlign('rtl')" title="Right-to-Left (Persian/Arabic)">RTL</button>
         </div>
         <div class="toolbar-sep"></div>
         <div class="toolbar-group">
-          <span class="toolbar-label">Font:</span>
+          <span class="toolbar-label">View:</span>
+          <button class="tb-btn active" id="viewEditBtn" onclick="setViewMode('edit')" title="Edit Markdown">✏️ Edit</button>
+          <button class="tb-btn" id="viewPreviewBtn" onclick="setViewMode('preview')" title="Preview Markdown">👁️ Preview</button>
+        </div>
+        <div class="toolbar-sep"></div>
+        <div class="toolbar-group">
+          <span class="toolbar-label">Size:</span>
           <select class="font-size-select" id="fontSizeSelect" onchange="setFontSize(this.value)">
             <option value="12">12</option>
             <option value="13">13</option>
@@ -312,25 +433,22 @@
             <option value="18">18</option>
             <option value="20">20</option>
             <option value="22">22</option>
-            <option value="24">24</option>
           </select>
         </div>
         <div class="toolbar-sep"></div>
         <div class="toolbar-group">
-          <span class="toolbar-label">Lines:</span>
-          <button class="tb-btn active" id="lineNumBtn" onclick="toggleLineNumbers()" title="Toggle line numbers">#</button>
+          <button class="tb-btn" id="lineNumBtn" onclick="toggleLineNumbers()" title="Toggle line numbers">#</button>
         </div>
         <div class="toolbar-sep"></div>
         <div class="toolbar-group">
-          <button class="tb-btn" onclick="renameNote()" title="Rename note">
-            <span class="ico">✏️</span><span>Rename</span>
-          </button>
+          <button class="tb-btn" onclick="renameNote()" title="Rename note">✏️ Rename</button>
         </div>
       </div>
 
       <div class="editor-wrap" id="editorWrap">
         <div class="line-numbers" id="lineNumbers"></div>
-        <textarea class="editor-content ltr" id="editorContent" placeholder="Start typing..."></textarea>
+        <textarea class="editor-content ltr" id="editorContent" placeholder="Start typing... (Markdown supported. Use '- [ ]' for checkboxes)"></textarea>
+        <div class="editor-content preview-mode" id="previewContent" style="display:none;"></div>
       </div>
     </div>
   </main>
@@ -373,6 +491,7 @@
 </div>
 
 <script>
+// ─── STORAGE KEYS (UNCHANGED AS REQUESTED) ───
 const STORAGE_KEY = 'notepad_data_v3';
 const SETTINGS_KEY = 'notepad_settings_v3';
 const DEBOUNCE_MS = 500;
@@ -383,8 +502,9 @@ let saveTimer = null;
 let settings = {
   theme: 'dark',
   fontSize: 15,
-  align: 'ltr',
-  showLineNumbers: true
+  align: 'rtl',
+  showLineNumbers: true,
+  viewMode: 'edit'
 };
 
 // ─── INIT ───
@@ -396,9 +516,10 @@ function init() {
   if (notes.length > 0) {
     const lastActive = localStorage.getItem(STORAGE_KEY + '_active');
     selectNote(lastActive && notes.find(n => n.id === lastActive) ? lastActive : notes[0].id);
+  } else {
+    showEmpty();
   }
   setupEditorEvents();
-  document.getElementById('fontSizeSelect').value = settings.fontSize;
 }
 
 // ─── SETTINGS ───
@@ -413,20 +534,25 @@ function saveSettings() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(sett
 function applySettings() {
   document.documentElement.setAttribute('data-theme', settings.theme);
   document.documentElement.style.setProperty('--font-size', settings.fontSize + 'px');
-  document.getElementById('themeBtn').textContent = settings.theme === 'dark' ? '🌙' : '☀️';
+  document.getElementById('themeSelect').value = settings.theme;
   document.getElementById('fontSizeSelect').value = settings.fontSize;
+  
   updateAlignUI();
   updateLineNumbersUI();
+  updateViewModeUI();
 }
 
-function toggleTheme() {
-  settings.theme = settings.theme === 'dark' ? 'light' : 'dark';
-  saveSettings(); applySettings(); updateLineNumbers();
+function changeTheme(theme) {
+  settings.theme = theme;
+  saveSettings(); applySettings();
 }
+
 function setFontSize(size) {
   settings.fontSize = parseInt(size);
-  saveSettings(); applySettings(); updateLineNumbers();
+  saveSettings(); applySettings(); 
+  if(settings.viewMode === 'edit') updateLineNumbers();
 }
+
 function setAlign(dir) {
   settings.align = dir;
   saveSettings(); updateAlignUI();
@@ -435,25 +561,153 @@ function setAlign(dir) {
     if (note) { note.align = dir; note.updatedAt = Date.now(); debouncedSave(); }
   }
 }
+
 function updateAlignUI() {
   const content = document.getElementById('editorContent');
+  const preview = document.getElementById('previewContent');
   const wrap = document.getElementById('editorWrap');
+  
   content.classList.remove('ltr','rtl');
-  content.classList.add(settings.align);
+  preview.classList.remove('ltr','rtl');
   wrap.classList.remove('ltr','rtl');
+  
+  content.classList.add(settings.align);
+  preview.classList.add(settings.align);
   wrap.classList.add(settings.align);
+  
   document.getElementById('alignLtrBtn').classList.toggle('active', settings.align === 'ltr');
   document.getElementById('alignRtlBtn').classList.toggle('active', settings.align === 'rtl');
 }
+
+function setViewMode(mode) {
+  settings.viewMode = mode;
+  saveSettings();
+  
+  const note = getActiveNote();
+  if (mode === 'preview') {
+    // Switch to preview - render markdown from current note content
+    if (note) {
+      document.getElementById('editorContent').value = note.content || '';
+      renderMarkdown();
+    }
+  } else {
+    // Switch to edit - sync textarea with note content
+    if (note) {
+      document.getElementById('editorContent').value = note.content || '';
+      updateLineNumbers();
+    }
+  }
+  
+  updateViewModeUI();
+}
+
+function updateViewModeUI() {
+  const editBtn = document.getElementById('viewEditBtn');
+  const previewBtn = document.getElementById('viewPreviewBtn');
+  const textarea = document.getElementById('editorContent');
+  const preview = document.getElementById('previewContent');
+  
+  editBtn.classList.toggle('active', settings.viewMode === 'edit');
+  previewBtn.classList.toggle('active', settings.viewMode === 'preview');
+  
+  if (settings.viewMode === 'preview') {
+    textarea.style.display = 'none';
+    preview.style.display = 'block';
+    document.getElementById('lineNumbers').style.display = 'none';
+  } else {
+    textarea.style.display = 'block';
+    preview.style.display = 'none';
+    updateLineNumbersUI();
+  }
+}
+
+// ─── MARKDOWN & CHECKBOX SYNC ───
+function toggleCheckboxInText(text, checkboxIndex, isChecked) {
+  const lines = text.split('\n');
+  let currentCheckbox = 0;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    // Match checkbox pattern: optional whitespace, then - or * or +, then space, then [ ] or [x] or [X]
+    const match = line.match(/^(\s*[-*+]\s+\[)([ xX])(\].*)$/);
+    if (match) {
+      if (currentCheckbox === checkboxIndex) {
+        // Replace the checkbox state
+        const newState = isChecked ? 'x' : ' ';
+        lines[i] = match[1] + newState + match[3];
+        break;
+      }
+      currentCheckbox++;
+    }
+  }
+  
+  return lines.join('\n');
+}
+
+function renderMarkdown() {
+  const note = getActiveNote();
+  if (!note) return;
+  const preview = document.getElementById('previewContent');
+  
+  marked.setOptions({ 
+    breaks: true, 
+    gfm: true,
+    headerIds: false,
+    mangle: false
+  });
+  
+  let html = marked.parse(note.content || '');
+  
+  // Process checkboxes - remove disabled attribute and add data-index
+  let cbIndex = 0;
+  html = html.replace(/<input\s+type="checkbox"([^>]*)>/gi, (match, attrs) => {
+    const isChecked = /checked/i.test(attrs);
+    // Remove disabled attribute in all forms
+    const cleanAttrs = attrs.replace(/\s+disabled(?:="[^"]*")?/gi, '');
+    return `<input type="checkbox" class="md-checkbox" data-index="${cbIndex++}"${cleanAttrs}${isChecked ? ' checked' : ''}>`;
+  });
+  
+  // Add task-list-item class to li elements containing checkboxes
+  html = html.replace(/<li>(\s*<input type="checkbox" class="md-checkbox")/gi, '<li class="task-list-item">$1');
+  
+  preview.innerHTML = html;
+
+  // Attach change listeners to sync with textarea
+  preview.querySelectorAll('.md-checkbox').forEach(cb => {
+    cb.addEventListener('change', (e) => {
+      const note = getActiveNote();
+      if (!note) return;
+      
+      const idx = parseInt(e.target.dataset.index);
+      const isChecked = e.target.checked;
+      
+      // Update the note content
+      const newText = toggleCheckboxInText(note.content, idx, isChecked);
+      note.content = newText;
+      note.updatedAt = Date.now();
+      
+      // Update textarea to keep in sync
+      document.getElementById('editorContent').value = newText;
+      
+      // Update UI
+      updateTabTitle(activeId);
+      debouncedSave();
+    });
+  });
+}
+
 function toggleLineNumbers() {
   settings.showLineNumbers = !settings.showLineNumbers;
   saveSettings(); updateLineNumbersUI();
 }
+
 function updateLineNumbersUI() {
+  if (settings.viewMode === 'preview') return;
   const ln = document.getElementById('lineNumbers');
   const btn = document.getElementById('lineNumBtn');
   ln.style.display = settings.showLineNumbers ? 'block' : 'none';
   btn.classList.toggle('active', settings.showLineNumbers);
+  if (settings.showLineNumbers) updateLineNumbers();
 }
 
 // ─── STORAGE ───
@@ -496,7 +750,7 @@ function generateId() {
 function addNote() {
   const note = {
     id: generateId(),
-    title: '',           // ← new field
+    title: '',
     content: '',
     align: settings.align,
     createdAt: Date.now(),
@@ -530,13 +784,20 @@ function selectNote(id) {
 
   const content = document.getElementById('editorContent');
   content.value = note.content || '';
+  
   const noteAlign = note.align || settings.align;
-  content.classList.remove('ltr','rtl');
-  content.classList.add(noteAlign);
-  document.getElementById('editorWrap').classList.remove('ltr','rtl');
-  document.getElementById('editorWrap').classList.add(noteAlign);
-
-  updateActiveTab(); updateLineNumbers();
+  if (noteAlign !== settings.align) {
+    settings.align = noteAlign;
+  }
+  updateAlignUI();
+  
+  if (settings.viewMode === 'preview') {
+    renderMarkdown();
+  } else {
+    updateLineNumbers();
+  }
+  
+  updateActiveTab();
   localStorage.setItem(STORAGE_KEY + '_active', id);
 }
 
@@ -548,22 +809,20 @@ function showEmpty() {
 
 function getActiveNote() { return notes.find(n => n.id === activeId); }
 
-// Title priority: explicit title → first line of content → "Untitled Note"
 function getNoteTitle(note) {
   if (note.title && note.title.trim()) return note.title.trim();
   if (!note.content) return 'Untitled Note';
-  const firstLine = note.content.split('\n')[0].trim();
+  const firstLine = note.content.split('\n')[0].replace(/^[#*\-\[\]xX\s]+/, '').trim();
   if (!firstLine) return 'Untitled Note';
   return firstLine.length > 40 ? firstLine.substring(0, 40) + '...' : firstLine;
 }
 
-// ─── RENAME ───
 function renameNote() {
   const note = getActiveNote();
   if (!note) { alert('No note is selected.'); return; }
   const current = note.title || '';
   const result = prompt('Enter note title (leave empty to use first line of content):', current);
-  if (result === null) return; // cancelled
+  if (result === null) return;
   note.title = result.trim();
   note.updatedAt = Date.now();
   renderTabs();
@@ -605,7 +864,7 @@ function updateTabTitle(id) {
   const note = notes.find(n => n.id === id);
   if (!note) return;
   const tab = document.querySelector(`.tab-item[data-id="${id}"] .tab-title`);
-  if (tab) tab.textContent = getNoteTitle(note);
+  if (tab) tab.textContent = escapeHtml(getNoteTitle(note));
 }
 
 // ─── EDITOR EVENTS ───
@@ -617,7 +876,9 @@ function setupEditorEvents() {
     note.content = content.value;
     note.updatedAt = Date.now();
     updateTabTitle(activeId);
-    updateLineNumbers();
+    if (settings.viewMode === 'edit') {
+      updateLineNumbers();
+    }
     debouncedSave();
   });
   content.addEventListener('scroll', () => {
@@ -628,6 +889,7 @@ function setupEditorEvents() {
 }
 
 function updateCurrentLine() {
+  if (settings.viewMode !== 'edit' || !settings.showLineNumbers) return;
   const content = document.getElementById('editorContent');
   const text = content.value.substring(0, content.selectionStart);
   const currentLine = text.split('\n').length;
@@ -636,25 +898,14 @@ function updateCurrentLine() {
   });
 }
 
-// ─── LINE NUMBERS ───
 function updateLineNumbers() {
-  if (!settings.showLineNumbers) return;
+  if (!settings.showLineNumbers || settings.viewMode === 'preview') return;
   const content = document.getElementById('editorContent');
   const ln = document.getElementById('lineNumbers');
 
-  const mirror = document.createElement('div');
-  mirror.style.cssText = `
-    position:absolute;visibility:hidden;white-space:pre-wrap;word-wrap:break-word;
-    font-family:Consolas,'Courier New',monospace;font-size:${settings.fontSize}px;
-    line-height:${getComputedStyle(content).lineHeight};
-    width:${content.clientWidth - 28}px;padding:0;box-sizing:content-box;
-  `;
-  document.body.appendChild(mirror);
   const text = content.value || '';
-  mirror.textContent = text;
-  const lh = parseFloat(getComputedStyle(content).lineHeight) || settings.fontSize * 1.2;
-  const totalLines = Math.max(1, Math.ceil(mirror.scrollHeight / lh));
-  document.body.removeChild(mirror);
+  const lines = text.split('\n');
+  const totalLines = Math.max(1, lines.length);
 
   const beforeCursor = text.substring(0, content.selectionStart);
   const currentLine = beforeCursor.split('\n').length;
@@ -741,9 +992,15 @@ document.addEventListener('keydown', (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'r' && !e.shiftKey && document.activeElement.tagName !== 'TEXTAREA') {
     e.preventDefault(); renameNote();
   }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'p') { 
+    e.preventDefault(); 
+    setViewMode(settings.viewMode === 'edit' ? 'preview' : 'edit'); 
+  }
 });
 
-window.addEventListener('resize', () => { if (activeId) updateLineNumbers(); });
+window.addEventListener('resize', () => { 
+  if (activeId && settings.viewMode === 'edit') updateLineNumbers(); 
+});
 
 init();
 </script>
