@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Component Calculator</title>
+<style>
+:root{--bg:#1a1a2e;--bg2:#16213e;--bg3:#0f3460;--accent:#00d4ff;--accent2:#00ff88;--text:#e0e0e0;--text2:#aaa;--gold:#ffd700;--red:#ff4444}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:15px}
+h1{text-align:center;padding:25px 0 12px;color:var(--accent);font-size:1.8em}
+.lang-btn{position:absolute;top:20px;left:20px;padding:8px 18px;border:1px solid var(--accent);border-radius:8px;background:transparent;color:var(--accent);cursor:pointer;font-size:1em}
+.tabs{display:flex;justify-content:center;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.tab-btn{padding:14px 28px;border:none;border-radius:12px 12px 0 0;cursor:pointer;font-size:1.1em;background:var(--bg2);color:var(--text2);transition:.3s}
+.tab-btn.active{background:var(--bg3);color:var(--accent);font-weight:bold}
+.tab-content{display:none;background:var(--bg3);border-radius:0 0 16px 16px;padding:20px;max-width:1000px;margin:0 auto}
+.tab-content.active{display:block}
+.sub-tabs{display:flex;justify-content:center;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.sub-btn{padding:10px 22px;border:1px solid #00d4ff44;border-radius:10px;cursor:pointer;background:transparent;color:var(--text2);font-size:1em;transition:.3s}
+.sub-btn.active{background:#00d4ff22;color:var(--accent);border-color:var(--accent)}
+.band-toggle{display:flex;justify-content:center;gap:10px;margin:18px 0}
+.toggle-btn{padding:12px 24px;border:2px solid var(--accent);border-radius:10px;cursor:pointer;background:transparent;color:var(--text2);font-size:1em;transition:.3s}
+.toggle-btn.active{background:var(--accent);color:var(--bg);font-weight:bold}
+.component-visual{display:flex;align-items:center;justify-content:center;margin:20px auto;height:80px}
+.comp-wire{width:50px;height:4px;background:#aaa}
+.comp-body{width:240px;height:66px;background:linear-gradient(180deg,#d4b87a,#c4a55a,#b8944a);border-radius:14px;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 18px}
+.comp-band{width:16px;height:56px;border-radius:3px;transition:background .3s;border:1px solid #0003}
+.comp-band.narrow{width:12px}
+.capacitor-visual{display:flex;align-items:center;justify-content:center;margin:25px auto;height:140px}
+.cap-body{width:120px;height:120px;background:radial-gradient(circle at 30% 30%,#ffcc66,#cc8833,#996622);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(0,0,0,.5),inset 0 -5px 10px rgba(0,0,0,.3);border:2px solid #664411}
+.cap-lead{position:absolute;width:4px;height:35px;background:#aaa}
+.cap-lead.left{left:42px;top:105px;transform:rotate(-20deg)}
+.cap-lead.right{right:42px;top:105px;transform:rotate(20deg)}
+.cap-code{font-size:1.3em;font-weight:bold;color:#333;text-align:center;text-shadow:0 1px 2px rgba(255,255,255,.3);background:rgba(255,255,255,.2);padding:10px 15px;border-radius:8px;direction:ltr}
+.result-above{text-align:center;margin:15px 0;padding:16px;background:var(--bg2);border-radius:12px;border:1px solid #00d4ff33}
+.result-above .val{color:var(--accent2);font-size:1.7em;font-weight:bold;direction:ltr}
+.result-above .tol{color:var(--gold);font-size:1.1em;margin-top:6px}
+.result-above .mode{color:var(--accent);font-size:1em;margin-bottom:6px}
+.bands-container{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:15px 0}
+.band-col{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:70px}
+.band-col-title{font-size:.85em;color:var(--accent);margin-bottom:6px;text-align:center;min-height:38px}
+.color-opt{width:68px;height:34px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85em;font-weight:bold;border:2px solid transparent;transition:.2s;text-shadow:0 0 3px #0008;user-select:none}
+.color-opt:hover{transform:scale(1.08);z-index:2}
+.color-opt.selected{border-color:#fff;box-shadow:0 0 10px var(--accent)}
+.input-row{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0}
+.input-row input{width:140px;padding:12px;border-radius:10px;border:1px solid #00d4ff55;background:var(--bg2);color:#fff;font-size:1.2em;text-align:center}
+.input-row select{padding:12px;border-radius:10px;border:1px solid #00d4ff55;background:var(--bg2);color:#fff;font-size:1.1em}
+.color-result-chip{width:58px;height:58px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.8em;font-weight:bold;border:2px solid #fff3;text-shadow:0 0 3px #000;flex-direction:column}
+.color-result-chip small{font-size:.8em;opacity:.8}
+.multi-band-display{margin:20px 0;padding:18px;background:var(--bg2);border-radius:12px;border:1px solid #00d4ff33}
+.multi-band-title{text-align:center;color:var(--accent);margin-bottom:14px;font-size:1.1em}
+.band-mode{margin:14px 0;padding:14px;background:var(--bg3);border-radius:10px}
+.band-mode-title{color:var(--gold);font-size:1em;margin-bottom:10px;text-align:center}
+.band-mode-chips{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.cap-row{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0}
+.cap-row input,.cap-row select{padding:12px 14px;border-radius:10px;border:1px solid #00d4ff55;background:var(--bg2);color:#fff;font-size:1.1em;text-align:center}
+.cap-row input{width:150px}
+.cap-result{background:var(--bg2);border-radius:12px;padding:18px;margin:15px auto;max-width:600px;text-align:center;border:1px solid #00d4ff33}
+.cap-result .big{color:var(--accent2);font-size:1.7em;font-weight:bold;direction:ltr}
+.cap-result .detail{color:var(--text2);font-size:1em;margin-top:6px;direction:ltr}
+.info-text{text-align:center;color:#888;font-size:.95em;margin:12px 0}
+.about-container{max-width:800px;margin:25px auto;text-align:center}
+.about-title{color:var(--accent);font-size:2.2em;margin-bottom:25px}
+.about-section{background:var(--bg2);border-radius:14px;padding:25px;margin:20px 0;border:1px solid #00d4ff33;text-align:right}
+.about-section h3{color:var(--accent);margin-bottom:15px;font-size:1.5em}
+.about-section p{line-height:1.9;color:#ccc;margin-bottom:12px;font-size:1.1em}
+.about-features{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin:25px 0}
+.feature-card{background:var(--bg3);border-radius:12px;padding:20px;text-align:center;border:1px solid #00d4ff22}
+.feature-card h4{color:var(--accent2);margin-bottom:10px;font-size:1.3em}
+.feature-card p{color:var(--text2);font-size:1.05em}
+.about-contact{background:var(--bg2);border-radius:14px;padding:25px;margin:20px 0;border:1px solid #00d4ff33}
+.contact-item{display:flex;align-items:center;gap:15px;margin:15px 0;justify-content:center;font-size:1.1em}
+.contact-icon{font-size:1.8em}
+.contact-text{color:#ccc}
+.about-footer{margin-top:35px;padding:25px;background:var(--bg3);border-radius:12px;text-align:center}
+.about-footer p{color:#888;font-size:1em;margin:8px 0}
+@media(max-width:768px){
+h1{font-size:1.5em;padding:20px 0 10px}
+.lang-btn{top:15px;left:15px;padding:7px 14px;font-size:.9em}
+.tab-btn{padding:12px 20px;font-size:1em}
+.sub-btn{padding:9px 18px;font-size:.95em}
+.tab-content{padding:15px}
+.comp-body{width:200px;height:56px;gap:8px;padding:0 14px}
+.comp-band{width:14px;height:48px}
+.comp-band.narrow{width:10px}
+.comp-wire{width:40px}
+.cap-body{width:100px;height:100px}
+.cap-code{font-size:1.1em;padding:8px 12px}
+.cap-lead{height:30px}
+.cap-lead.left{left:35px;top:90px}
+.cap-lead.right{right:35px;top:90px}
+.result-above .val{font-size:1.4em}
+.result-above{padding:14px}
+.bands-container{gap:10px}
+.band-col{min-width:60px}
+.band-col-title{font-size:.8em}
+.color-opt{width:60px;height:30px;font-size:.8em}
+.input-row input{width:120px;font-size:1.1em}
+.input-row select{font-size:1em}
+.color-result-chip{width:50px;height:50px;font-size:.75em}
+.multi-band-display{padding:14px}
+.band-mode{padding:12px}
+.band-mode-title{font-size:.95em}
+.cap-row input{width:130px;font-size:1em}
+.cap-row select{font-size:.95em}
+.cap-result{padding:16px}
+.cap-result .big{font-size:1.4em}
+.toggle-btn{padding:10px 20px;font-size:.95em}
+.about-title{font-size:1.8em}
+.about-section{padding:20px}
+.about-features{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+body{padding:10px}
+h1{font-size:1.3em}
+.tabs{gap:6px}
+.tab-btn{padding:10px 16px;font-size:.9em}
+.sub-tabs{gap:6px}
+.sub-btn{padding:8px 14px;font-size:.88em}
+.comp-body{width:170px;height:50px;gap:7px;padding:0 12px}
+.comp-band{width:12px;height:42px}
+.comp-band.narrow{width:9px}
+.comp-wire{width:30px}
+.cap-body{width:85px;height:85px}
+.cap-code{font-size:1em;padding:7px 10px}
+.cap-lead{height:25px;width:3px}
+.cap-lead.left{left:30px;top:75px}
+.cap-lead.right{right:30px;top:75px}
+.result-above .val{font-size:1.3em}
+.result-above .tol{font-size:1em}
+.bands-container{gap:8px}
+.band-col{min-width:55px}
+.band-col-title{font-size:.75em;min-height:32px}
+.color-opt{width:54px;height:28px;font-size:.75em}
+.input-row{gap:8px}
+.input-row input{width:110px;padding:10px;font-size:1em}
+.input-row select{padding:10px;font-size:.9em}
+.color-result-chip{width:45px;height:45px;font-size:.7em}
+.band-mode-chips{gap:8px}
+.cap-row{gap:8px}
+.cap-row input{width:110px;padding:10px;font-size:.95em}
+.cap-row select{padding:10px;font-size:.9em}
+.toggle-btn{padding:9px 16px;font-size:.88em}
+.about-title{font-size:1.5em}
+.about-section{padding:16px}
+.about-section h3{font-size:1.3em}
+.about-section p{font-size:1em}
+.feature-card{padding:16px}
+.feature-card h4{font-size:1.15em}
+.feature-card p{font-size:.95em}
+}
+</style>
+</head>
+<body>
+
+<button class="lang-btn" onclick="toggleLang()" id="langBtn">فا</button>
+<h1 id="mainTitle">⚡ Component Calculator</h1>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('resistor')" data-en="🔴 Resistor" data-fa="🔴 مقاومت">🔴 Resistor</button>
+  <button class="tab-btn" onclick="switchTab('inductor')" data-en="🟤 Inductor" data-fa="🟤 سلف">🟤 Inductor</button>
+  <button class="tab-btn" onclick="switchTab('capacitor')" data-en="🔵 Capacitor" data-fa="🔵 خازن">🔵 Capacitor</button>
+  <button class="tab-btn" onclick="switchTab('about')" data-en="ℹ️ About" data-fa="ℹ️ درباره ما">ℹ️ About</button>
+</div>
+
+<div id="tab-resistor" class="tab-content active">
+  <div class="sub-tabs">
+    <button class="sub-btn active" onclick="switchSub('r','c2o')" data-en="🎨 Color to Ohm" data-fa="🎨 رنگ به اهم">🎨 Color to Ohm</button>
+    <button class="sub-btn" onclick="switchSub('r','o2c')" data-en="🔢 Ohm to Color" data-fa="🔢 اهم به رنگ">🔢 Ohm to Color</button>
+  </div>
+
+  <div id="r-c2o" class="sub-panel">
+    <div class="band-toggle">
+      <button class="toggle-btn" id="toggleR3" onclick="setBandMode('r',3)" data-en="3 Band" data-fa="۳ باند">3 Band</button>
+      <button class="toggle-btn" id="toggleR4" onclick="setBandMode('r',4)" data-en="4 Band" data-fa="۴ باند">4 Band</button>
+      <button class="toggle-btn active" id="toggleR5" onclick="setBandMode('r',5)" data-en="5 Band" data-fa="۵ باند">5 Band</button>
+    </div>
+
+    <div class="result-above">
+      <div class="mode" id="modeInfoR">Mode: 5 Band</div>
+      <div class="val" id="resValue">—</div>
+      <div class="tol" id="resTol"></div>
+    </div>
+
+    <div class="component-visual">
+      <div class="comp-wire"></div>
+      <div class="comp-body">
+        <div class="comp-band" id="vbR1" style="background:#8B4513"></div>
+        <div class="comp-band" id="vbR2" style="background:#000"></div>
+        <div class="comp-band" id="vbR3" style="background:#FF0000"></div>
+        <div class="comp-band narrow" id="vbR4" style="background:#FFD700"></div>
+        <div class="comp-band" id="vbR5" style="background:#DAA520"></div>
+      </div>
+      <div class="comp-wire"></div>
+    </div>
+
+    <div class="bands-container" id="bandsContainerR"></div>
+  </div>
+
+  <div id="r-o2c" class="sub-panel" style="display:none">
+    <div class="input-row">
+      <label data-en="Value:" data-fa="مقدار:">Value:</label>
+      <input type="number" id="ohmVal" value="4700" min="0" step="any" oninput="ohmToColor()">
+      <select id="ohmUnit" onchange="ohmToColor()">
+        <option value="1">Ω</option>
+        <option value="1000" selected>KΩ</option>
+        <option value="1000000">MΩ</option>
+        <option value="1000000000">GΩ</option>
+      </select>
+      <select id="ohmTol" onchange="ohmToColor()">
+        <option value="1">±1% (Brown)</option>
+        <option value="2">±2% (Red)</option>
+        <option value="5" selected>±5% (Gold)</option>
+        <option value="10">±10% (Silver)</option>
+        <option value="0.5">±0.5% (Green)</option>
+        <option value="0.25">±0.25% (Blue)</option>
+        <option value="0.1">±0.1% (Violet)</option>
+        <option value="0.05">±0.05% (Gray)</option>
+      </select>
+    </div>
+    
+    <div class="multi-band-display">
+      <div class="multi-band-title" data-en="All Band Modes" data-fa="نمایش همه حالت‌ها">All Band Modes</div>
+      <div class="band-mode">
+        <div class="band-mode-title" data-en="3 Band (±20%)" data-fa="۳ باند (±20%)">3 Band (±20%)</div>
+        <div class="band-mode-chips" id="chipsR3"></div>
+      </div>
+      <div class="band-mode">
+        <div class="band-mode-title" data-en="4 Band" data-fa="۴ باند">4 Band</div>
+        <div class="band-mode-chips" id="chipsR4"></div>
+      </div>
+      <div class="band-mode">
+        <div class="band-mode-title" data-en="5 Band" data-fa="۵ باند">5 Band</div>
+        <div class="band-mode-chips" id="chipsR5"></div>
+      </div>
+    </div>
+    
+    <div class="result-above">
+      <div class="val" id="o2cValueR">—</div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-inductor" class="tab-content">
+  <div class="sub-tabs">
+    <button class="sub-btn active" onclick="switchSub('i','c2h')" data-en="🎨 Color to Henry" data-fa="🎨 رنگ به هنری">🎨 Color to Henry</button>
+    <button class="sub-btn" onclick="switchSub('i','h2c')" data-en="🔢 Henry to Color" data-fa="🔢 هنری به رنگ">🔢 Henry to Color</button>
+  </div>
+
+  <div id="i-c2h" class="sub-panel">
+    <div class="band-toggle">
+      <button class="toggle-btn" id="toggleI3" onclick="setBandMode('i',3)" data-en="3 Band" data-fa="۳ باند">3 Band</button>
+      <button class="toggle-btn" id="toggleI4" onclick="setBandMode('i',4)" data-en="4 Band" data-fa="۴ باند">4 Band</button>
+      <button class="toggle-btn active" id="toggleI5" onclick="setBandMode('i',5)" data-en="5 Band" data-fa="۵ باند">5 Band</button>
+    </div>
+
+    <div class="result-above">
+      <div class="mode" id="modeInfoI">Mode: 5 Band</div>
+      <div class="val" id="indValue">—</div>
+      <div class="tol" id="indTol"></div>
+    </div>
+
+    <div class="component-visual">
+      <div class="comp-wire"></div>
+      <div class="comp-body">
+        <div class="comp-band" id="vbI1" style="background:#8B4513"></div>
+        <div class="comp-band" id="vbI2" style="background:#000"></div>
+        <div class="comp-band" id="vbI3" style="background:#FF0000"></div>
+        <div class="comp-band narrow" id="vbI4" style="background:#FFD700"></div>
+        <div class="comp-band" id="vbI5" style="background:#DAA520"></div>
+      </div>
+      <div class="comp-wire"></div>
+    </div>
+
+    <div class="bands-container" id="bandsContainerI"></div>
+  </div>
+
+  <div id="i-h2c" class="sub-panel" style="display:none">
+    <div class="input-row">
+      <label data-en="Value:" data-fa="مقدار:">Value:</label>
+      <input type="number" id="henryVal" value="100" min="0" step="any" oninput="henryToColor()">
+      <select id="henryUnit" onchange="henryToColor()">
+        <option value="0.000000001">nH</option>
+        <option value="0.000001">µH</option>
+        <option value="0.001">mH</option>
+        <option value="1" selected>H</option>
+      </select>
+      <select id="henryTol" onchange="henryToColor()">
+        <option value="1">±1% (Brown)</option>
+        <option value="2">±2% (Red)</option>
+        <option value="5" selected>±5% (Gold)</option>
+        <option value="10">±10% (Silver)</option>
+        <option value="0.5">±0.5% (Green)</option>
+        <option value="0.25">±0.25% (Blue)</option>
+        <option value="0.1">±0.1% (Violet)</option>
+        <option value="0.05">±0.05% (Gray)</option>
+      </select>
+    </div>
+    
+    <div class="multi-band-display">
+      <div class="multi-band-title" data-en="All Band Modes" data-fa="نمایش همه حالت‌ها">All Band Modes</div>
+      <div class="band-mode">
+        <div class="band-mode-title" data-en="3 Band (±20%)" data-fa="۳ باند (±20%)">3 Band (±20%)</div>
+        <div class="band-mode-chips" id="chipsI3"></div>
+      </div>
+      <div class="band-mode">
+        <div class="band-mode-title" data-en="4 Band" data-fa="۴ باند">4 Band</div>
+        <div class="band-mode-chips" id="chipsI4"></div>
+      </div>
+      <div class="band-mode">
+        <div class="band-mode-title" data-en="5 Band" data-fa="۵ باند">5 Band</div>
+        <div class="band-mode-chips" id="chipsI5"></div>
+      </div>
+    </div>
+    
+    <div class="result-above">
+      <div class="val" id="h2cValueI">—</div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-capacitor" class="tab-content">
+  <div class="sub-tabs">
+    <button class="sub-btn active" onclick="switchSub('c','n2c')" data-en="🔢 Number to Code" data-fa="🔢 عدد به کد">🔢 Number to Code</button>
+    <button class="sub-btn" onclick="switchSub('c','c2n')" data-en="🏷️ Code to Number" data-fa="🏷️ کد به عدد">🏷️ Code to Number</button>
+  </div>
+
+  <div id="c-n2c" class="sub-panel">
+    <p class="info-text" data-en="Enter capacitor value to get 3-digit code" data-fa="مقدار خازن را وارد کنید تا کد ۳ رقمی آن نمایش داده شود">Enter capacitor value to get 3-digit code</p>
+    
+    <div class="capacitor-visual">
+      <div class="cap-lead left"></div>
+      <div class="cap-lead right"></div>
+      <div class="cap-body">
+        <div class="cap-code" id="capCodeVisual">104K</div>
+      </div>
+    </div>
+    
+    <div class="cap-row">
+      <input type="number" id="capVal" value="100" min="0" step="any" oninput="numToCode()">
+      <select id="capUnit" onchange="numToCode()">
+        <option value="1">pF</option>
+        <option value="1000">nF</option>
+        <option value="1000000">µF</option>
+      </select>
+      <select id="capTolCode" onchange="numToCode()">
+        <option value="J">J (±5%)</option>
+        <option value="K" selected>K (±10%)</option>
+        <option value="M">M (±20%)</option>
+      </select>
+    </div>
+    <div class="cap-result">
+      <div data-en="Part Code:" data-fa="کد قطعه:">Part Code:</div>
+      <div class="big" id="capCodeResult">104K</div>
+      <div class="detail" id="capCodeDetail"></div>
+    </div>
+  </div>
+
+  <div id="c-c2n" class="sub-panel" style="display:none">
+    <p class="info-text" data-en="Enter 3-digit capacitor code (e.g., 104 or 104K)" data-fa="کد ۳ رقمی خازن را وارد کنید (مثلاً 104 یا 104K)">Enter 3-digit capacitor code (e.g., 104 or 104K)</p>
+    
+    <div class="capacitor-visual">
+      <div class="cap-lead left"></div>
+      <div class="cap-lead right"></div>
+      <div class="cap-body">
+        <div class="cap-code" id="capCodeVisual2">104K</div>
+      </div>
+    </div>
+    
+    <div class="cap-row">
+      <input type="text" id="capCode" value="104K" maxlength="4" oninput="codeToNum()" style="width:120px;font-size:1.5em;letter-spacing:4px">
+    </div>
+    <div class="cap-result">
+      <div data-en="Capacitor Value:" data-fa="مقدار خازن:">Capacitor Value:</div>
+      <div class="big" id="capNumResult">100 nF</div>
+      <div class="detail" id="capNumDetail"></div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-about" class="tab-content">
+  <div class="about-container">
+    <h2 class="about-title" data-en="⚡ Component Calculator" data-fa="⚡ ماشین حساب قطعات">⚡ Component Calculator</h2>
+    
+    <div class="about-section">
+      <h3 data-en="About This Tool" data-fa="درباره این ابزار">About This Tool</h3>
+      <p data-en="A comprehensive electronic component calculator designed for engineers, technicians, and hobbyists. Calculate resistor, inductor, and capacitor values with color code conversion." 
+         data-fa="یک ماشین حساب جامع قطعات الکترونیکی طراحی شده برای مهندسان، تکنسین‌ها و علاقه‌مندان. محاسبه مقادیر مقاومت، سلف و خازن با تبدیل کد رنگی.">
+        A comprehensive electronic component calculator designed for engineers, technicians, and hobbyists. Calculate resistor, inductor, and capacitor values with color code conversion.
+      </p>
+    </div>
+    
+    <div class="about-features">
+      <div class="feature-card">
+        <h4 data-en="🔴 Resistor Calculator" data-fa="🔴 ماشین حساب مقاومت">🔴 Resistor Calculator</h4>
+        <p data-en="Convert between color codes and resistance values. Supports 3, 4, and 5-band resistors with tolerance calculation." 
+           data-fa="تبدیل بین کدهای رنگی و مقادیر مقاومت. پشتیبانی از مقاومت‌های ۳، ۴ و ۵ باند با محاسبه تلرانس.">
+          Convert between color codes and resistance values. Supports 3, 4, and 5-band resistors with tolerance calculation.
+        </p>
+      </div>
+      <div class="feature-card">
+        <h4 data-en="🟤 Inductor Calculator" data-fa="🟤 ماشین حساب سلف">🟤 Inductor Calculator</h4>
+        <p data-en="Calculate inductance values from color codes. Supports nH, µH, mH, and H units with multiple band configurations." 
+           data-fa="محاسبه مقادیر سلف از کدهای رنگی. پشتیبانی از واحدهای nH، µH، mH و H با پیکربندی‌های مختلف باند.">
+          Calculate inductance values from color codes. Supports nH, µH, mH, and H units with multiple band configurations.
+        </p>
+      </div>
+      <div class="feature-card">
+        <h4 data-en="🔵 Capacitor Calculator" data-fa="🔵 ماشین حساب خازن">🔵 Capacitor Calculator</h4>
+        <p data-en="Convert ceramic capacitor codes to values and vice versa. Supports pF, nF, and µF with tolerance codes." 
+           data-fa="تبدیل کدهای خازن سرامیکی به مقادیر و برعکس. پشتیبانی از pF، nF و µF با کدهای تلرانس.">
+          Convert ceramic capacitor codes to values and vice versa. Supports pF, nF, and µF with tolerance codes.
+        </p>
+      </div>
+    </div>
+    
+    <div class="about-section">
+      <h3 data-en="Features" data-fa="ویژگی‌ها">Features</h3>
+      <p data-en="✓ Bilingual support (English/Persian)" data-fa="✓ پشتیبانی دوزبانه (انگلیسی/فارسی)">✓ Bilingual support (English/Persian)</p>
+      <p data-en="✓ Fully responsive design for mobile devices" data-fa="✓ طراحی کاملاً واکنش‌گرا برای دستگاه‌های موبایل">✓ Fully responsive design for mobile devices</p>
+      <p data-en="✓ Visual component representation with color bands" data-fa="✓ نمایش بصری قطعات با باندهای رنگی">✓ Visual component representation with color bands</p>
+      <p data-en="✓ Real-time calculations and updates" data-fa="✓ محاسبات و به‌روزرسانی‌های لحظه‌ای">✓ Real-time calculations and updates</p>
+      <p data-en="✓ No internet connection required" data-fa="✓ بدون نیاز به اتصال اینترنت">✓ No internet connection required</p>
+    </div>
+    
+    <div class="about-contact">
+      <h3 data-en="Contact & Support" data-fa="تماس و پشتیبانی" style="color:var(--accent);margin-bottom:18px">Contact & Support</h3>
+      <div class="contact-item">
+        <span class="contact-icon">📧</span>
+        <span class="contact-text">support@componentcalc.com</span>
+      </div>
+      <div class="contact-item">
+        <span class="contact-icon">🌐</span>
+        <span class="contact-text">www.componentcalc.com</span>
+      </div>
+      <div class="contact-item">
+        <span class="contact-icon">💬</span>
+        <span class="contact-text" data-en="Feedback & Suggestions Welcome" data-fa="بازخورد و پیشنهادات خوش‌آمدید">Feedback & Suggestions Welcome</span>
+      </div>
+    </div>
+    
+    <div class="about-footer">
+      <p data-en="Version 3.0 | Last Updated: September 2026" data-fa="نسخه ۳.۰ | آخرین به‌روزرسانی: سپتامبر ۲۰۲۶">Version 3.0 | Last Updated: September 2026</p>
+      <p data-en="© 2026 Component Calculator. All rights reserved." data-fa="© ۲۰۲۶ ماشین حساب قطعات. تمامی حقوق محفوظ است.">© 2026 Component Calculator. All rights reserved.</p>
+      <p data-en="Made with ❤️ for electronics enthusiasts" data-fa="ساخته شده با ❤️ برای علاقه‌مندان به الکترونیک">Made with ❤️ for electronics enthusiasts</p>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentLang='en';
+const COLORS=[
+  {name:'Black',nameFa:'سیاه',hex:'#000000',digit:0,mult:1,multLabel:'×1',tol:null,tolLabel:'',textColor:'#fff'},
+  {name:'Brown',nameFa:'قهوه‌ای',hex:'#8B4513',digit:1,mult:10,multLabel:'×10',tol:1,tolLabel:'±1%',textColor:'#fff'},
+  {name:'Red',nameFa:'قرمز',hex:'#FF0000',digit:2,mult:100,multLabel:'×100',tol:2,tolLabel:'±2%',textColor:'#fff'},
+  {name:'Orange',nameFa:'نارنجی',hex:'#FF8C00',digit:3,mult:1000,multLabel:'×1K',tol:null,tolLabel:'',textColor:'#000'},
+  {name:'Yellow',nameFa:'زرد',hex:'#FFD700',digit:4,mult:10000,multLabel:'×10K',tol:null,tolLabel:'',textColor:'#000'},
+  {name:'Green',nameFa:'سبز',hex:'#008000',digit:5,mult:100000,multLabel:'×100K',tol:0.5,tolLabel:'±0.5%',textColor:'#fff'},
+  {name:'Blue',nameFa:'آبی',hex:'#0000FF',digit:6,mult:1000000,multLabel:'×1M',tol:0.25,tolLabel:'±0.25%',textColor:'#fff'},
+  {name:'Violet',nameFa:'بنفش',hex:'#8B00FF',digit:7,mult:10000000,multLabel:'×10M',tol:0.1,tolLabel:'±0.1%',textColor:'#fff'},
+  {name:'Gray',nameFa:'خاکستری',hex:'#808080',digit:8,mult:100000000,multLabel:'×100M',tol:0.05,tolLabel:'±0.05%',textColor:'#fff'},
+  {name:'White',nameFa:'سفید',hex:'#FFFFFF',digit:9,mult:1000000000,multLabel:'×1G',tol:null,tolLabel:'',textColor:'#000'},
+  {name:'Gold',nameFa:'طلایی',hex:'#DAA520',digit:-1,mult:0.1,multLabel:'×0.1',tol:5,tolLabel:'±5%',textColor:'#000'},
+  {name:'Silver',nameFa:'نقره‌ای',hex:'#C0C0C0',digit:-1,mult:0.01,multLabel:'×0.01',tol:10,tolLabel:'±10%',textColor:'#000'}
+];
+let bandSelR=[1,0,0,2,4],bandSelI=[1,0,0,2,4],currentBandModeR=5,currentBandModeI=5;
+
+function toggleLang(){
+  currentLang=currentLang==='en'?'fa':'en';
+  document.documentElement.lang=currentLang;
+  document.documentElement.dir=currentLang==='fa'?'rtl':'ltr';
+  document.getElementById('langBtn').textContent=currentLang==='en'?'فا':'EN';
+  document.getElementById('mainTitle').textContent=currentLang==='en'?'⚡ Component Calculator':'⚡ ماشین حساب قطعات';
+  document.querySelectorAll('[data-en]').forEach(el=>el.textContent=el.getAttribute('data-'+currentLang));
+  buildBands('r');buildBands('i');calcResistance();calcInductance();ohmToColor();henryToColor();numToCode();codeToNum();
+}
+
+function switchTab(t){
+  const tabs=['resistor','inductor','capacitor','about'];
+  const idx=tabs.indexOf(t);
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));
+  ['resistor','inductor','capacitor','about'].forEach(tab=>document.getElementById('tab-'+tab).classList.toggle('active',t===tab));
+}
+
+function switchSub(prefix,id){
+  const parent=prefix==='r'?'tab-resistor':prefix==='i'?'tab-inductor':'tab-capacitor';
+  document.querySelectorAll('#'+parent+' .sub-btn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.querySelectorAll('#'+parent+' .sub-panel').forEach(p=>p.style.display='none');
+  document.getElementById(prefix+'-'+id).style.display='block';
+  if(prefix==='r'&&id==='o2c')ohmToColor();
+  if(prefix==='i'&&id==='h2c')henryToColor();
+  if(prefix==='c'&&id==='n2c')numToCode();
+  if(prefix==='c'&&id==='c2n')codeToNum();
+}
+
+function setBandMode(comp,mode){
+  if(comp==='r'){
+    currentBandModeR=mode;
+    document.querySelectorAll('#tab-resistor .toggle-btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById('toggleR'+mode).classList.add('active');
+    buildBands('r');calcResistance();updateVisualR();
+  }else{
+    currentBandModeI=mode;
+    document.querySelectorAll('#tab-inductor .toggle-btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById('toggleI'+mode).classList.add('active');
+    buildBands('i');calcInductance();updateVisualI();
+  }
+}
+
+function buildBands(comp){
+  const cont=document.getElementById('bandsContainer'+comp.toUpperCase());
+  cont.innerHTML='';
+  const bandDefs=[
+    {label:currentLang==='en'?'Band 1\n(1st digit)':'باند ۱\n(رقم اول)',type:'digit'},
+    {label:currentLang==='en'?'Band 2\n(2nd digit)':'باند ۲\n(رقم دوم)',type:'digit'},
+    {label:currentLang==='en'?'Band 3\n(3rd digit)':'باند ۳\n(رقم سوم)',type:'digit3'},
+    {label:currentLang==='en'?'Band 4\n(Multiplier)':'باند ۴\n(ضریب)',type:'mult'},
+    {label:currentLang==='en'?'Band 5\n(Tolerance)':'باند ۵\n(تلرانس)',type:'tol'}
+  ];
+  const mode=comp==='r'?currentBandModeR:currentBandModeI;
+  const bandSel=comp==='r'?bandSelR:bandSelI;
+  
+  bandDefs.forEach((bd,bi)=>{
+    const col=document.createElement('div');
+    col.className='band-col';
+    if(mode===3&&(bd.type==='digit3'||bd.type==='tol')){col.style.display='none';return;}
+    if(mode===4&&bd.type==='digit3'){col.style.display='none';return;}
+    
+    const title=document.createElement('div');
+    title.className='band-col-title';
+    title.innerHTML=bd.label.replace('\n','<br>');
+    col.appendChild(title);
+    
+    COLORS.forEach((c,ci)=>{
+      let show=false,label='';
+      if(bd.type==='digit'||bd.type==='digit3'){if(c.digit>=0){show=true;label=c.digit;}}
+      else if(bd.type==='mult'){if(c.digit>=0||c.hex==='#DAA520'||c.hex==='#C0C0C0'){show=true;label=c.multLabel;}}
+      else if(bd.type==='tol'){if(c.tol!==null){show=true;label=c.tolLabel;}}
+      if(!show)return;
+      
+      const opt=document.createElement('div');
+      opt.className='color-opt'+(bandSel[bi]===ci?' selected':'');
+      opt.style.background=c.hex;
+      opt.style.color=c.textColor;
+      opt.textContent=label;
+      opt.title=(currentLang==='en'?c.name:c.nameFa)+' '+label;
+      opt.onclick=()=>selectBand(comp,bi,ci);
+      col.appendChild(opt);
+    });
+    cont.appendChild(col);
+  });
+}
+
+function selectBand(comp,bi,ci){
+  if(comp==='r'){bandSelR[bi]=ci;buildBands('r');calcResistance();updateVisualR();}
+  else{bandSelI[bi]=ci;buildBands('i');calcInductance();updateVisualI();}
+}
+
+function calcResistance(){
+  const mode=currentBandModeR;
+  document.getElementById('modeInfoR').textContent=currentLang==='en'?(mode===3?'Mode: 3 Band':mode===4?'Mode: 4 Band':'Mode: 5 Band'):(mode===3?'حالت: ۳ باند':mode===4?'حالت: ۴ باند':'حالت: ۵ باند');
+  
+  let digits,multIdx,tolIdx;
+  if(mode===5){digits=COLORS[bandSelR[0]].digit*100+COLORS[bandSelR[1]].digit*10+COLORS[bandSelR[2]].digit;multIdx=bandSelR[3];tolIdx=bandSelR[4];}
+  else if(mode===4){digits=COLORS[bandSelR[0]].digit*10+COLORS[bandSelR[1]].digit;multIdx=bandSelR[3];tolIdx=bandSelR[4];}
+  else{digits=COLORS[bandSelR[0]].digit*10+COLORS[bandSelR[1]].digit;multIdx=bandSelR[3];tolIdx=-1;}
+  
+  if(bandSelR[0]<0||bandSelR[1]<0||multIdx<0){document.getElementById('resValue').textContent='—';document.getElementById('resTol').textContent='';return;}
+  
+  const ohms=digits*COLORS[multIdx].mult;
+  document.getElementById('resValue').textContent=formatOhms(ohms);
+  document.getElementById('resTol').textContent=(tolIdx>=0&&COLORS[tolIdx].tol!==null?(currentLang==='en'?'Tolerance: ':'تلرانس: ')+COLORS[tolIdx].tolLabel:(currentLang==='en'?'Tolerance: ±20% (None)':'تلرانس: ±20% (بدون رنگ)'));
+}
+
+function formatOhms(v){
+  if(v>=1e9)return(v/1e9).toPrecision(4).replace(/\.?0+$/,'')+' GΩ';
+  if(v>=1e6)return(v/1e6).toPrecision(4).replace(/\.?0+$/,'')+' MΩ';
+  if(v>=1e3)return(v/1e3).toPrecision(4).replace(/\.?0+$/,'')+' KΩ';
+  if(v>=1)return v.toPrecision(4).replace(/\.?0+$/,'')+' Ω';
+  if(v>=0.01)return v.toPrecision(3).replace(/\.?0+$/,'')+' Ω';
+  return v+' Ω';
+}
+
+function updateVisualR(){
+  const mode=currentBandModeR;
+  const vb=[1,2,3,4,5].map(i=>document.getElementById('vbR'+i));
+  vb.forEach(b=>{b.style.display='block';b.style.background='#888';});
+  
+  if(mode===5){vb[0].style.background=COLORS[bandSelR[0]].hex;vb[1].style.background=COLORS[bandSelR[1]].hex;vb[2].style.background=COLORS[bandSelR[2]].hex;vb[3].style.background=COLORS[bandSelR[3]].hex;vb[4].style.background=bandSelR[4]>=0?COLORS[bandSelR[4]].hex:'transparent';}
+  else if(mode===4){vb[0].style.background=COLORS[bandSelR[0]].hex;vb[1].style.background=COLORS[bandSelR[1]].hex;vb[2].style.display='none';vb[3].style.background=COLORS[bandSelR[3]].hex;vb[4].style.background=bandSelR[4]>=0?COLORS[bandSelR[4]].hex:'transparent';}
+  else{vb[0].style.background=COLORS[bandSelR[0]].hex;vb[1].style.background=COLORS[bandSelR[1]].hex;vb[2].style.display='none';vb[3].style.background=COLORS[bandSelR[3]].hex;vb[4].style.display='none';}
+}
+
+function calcInductance(){
+  const mode=currentBandModeI;
+  document.getElementById('modeInfoI').textContent=currentLang==='en'?(mode===3?'Mode: 3 Band':mode===4?'Mode: 4 Band':'Mode: 5 Band'):(mode===3?'حالت: ۳ باند':mode===4?'حالت: ۴ باند':'حالت: ۵ باند');
+  
+  let digits,multIdx,tolIdx;
+  if(mode===5){digits=COLORS[bandSelI[0]].digit*100+COLORS[bandSelI[1]].digit*10+COLORS[bandSelI[2]].digit;multIdx=bandSelI[3];tolIdx=bandSelI[4];}
+  else if(mode===4){digits=COLORS[bandSelI[0]].digit*10+COLORS[bandSelI[1]].digit;multIdx=bandSelI[3];tolIdx=bandSelI[4];}
+  else{digits=COLORS[bandSelI[0]].digit*10+COLORS[bandSelI[1]].digit;multIdx=bandSelI[3];tolIdx=-1;}
+  
+  if(bandSelI[0]<0||bandSelI[1]<0||multIdx<0){document.getElementById('indValue').textContent='—';document.getElementById('indTol').textContent='';return;}
+  
+  const henry=digits*COLORS[multIdx].mult*0.000001;
+  document.getElementById('indValue').textContent=formatHenry(henry);
+  document.getElementById('indTol').textContent=(tolIdx>=0&&COLORS[tolIdx].tol!==null?(currentLang==='en'?'Tolerance: ':'تلرانس: ')+COLORS[tolIdx].tolLabel:(currentLang==='en'?'Tolerance: ±20% (None)':'تلرانس: ±20% (بدون رنگ)'));
+}
+
+function formatHenry(v){
+  if(v>=1)return v.toPrecision(4).replace(/\.?0+$/,'')+' H';
+  if(v>=0.001)return(v*1000).toPrecision(4).replace(/\.?0+$/,'')+' mH';
+  if(v>=0.000001)return(v*1000000).toPrecision(4).replace(/\.?0+$/,'')+' µH';
+  return(v*1000000000).toPrecision(4).replace(/\.?0+$/,'')+' nH';
+}
+
+function updateVisualI(){
+  const mode=currentBandModeI;
+  const vb=[1,2,3,4,5].map(i=>document.getElementById('vbI'+i));
+  vb.forEach(b=>{b.style.display='block';b.style.background='#888';});
+  
+  if(mode===5){vb[0].style.background=COLORS[bandSelI[0]].hex;vb[1].style.background=COLORS[bandSelI[1]].hex;vb[2].style.background=COLORS[bandSelI[2]].hex;vb[3].style.background=COLORS[bandSelI[3]].hex;vb[4].style.background=bandSelI[4]>=0?COLORS[bandSelI[4]].hex:'transparent';}
+  else if(mode===4){vb[0].style.background=COLORS[bandSelI[0]].hex;vb[1].style.background=COLORS[bandSelI[1]].hex;vb[2].style.display='none';vb[3].style.background=COLORS[bandSelI[3]].hex;vb[4].style.background=bandSelI[4]>=0?COLORS[bandSelI[4]].hex:'transparent';}
+  else{vb[0].style.background=COLORS[bandSelI[0]].hex;vb[1].style.background=COLORS[bandSelI[1]].hex;vb[2].style.display='none';vb[3].style.background=COLORS[bandSelI[3]].hex;vb[4].style.display='none';}
+}
+
+function ohmToColor(){
+  const val=parseFloat(document.getElementById('ohmVal').value)||0;
+  const unit=parseFloat(document.getElementById('ohmUnit').value);
+  const tolVal=document.getElementById('ohmTol').value;
+  const ohms=val*unit;
+  
+  if(ohms<=0){document.getElementById('o2cValueR').textContent='—';document.getElementById('chipsR3').innerHTML='';document.getElementById('chipsR4').innerHTML='';document.getElementById('chipsR5').innerHTML='';return;}
+  
+  const findDigit=d=>COLORS.findIndex(c=>c.digit===d);
+  const findMult=m=>{let best=-1,bestDiff=Infinity;COLORS.forEach((c,i)=>{if(c.mult>0||c.mult===0.1||c.mult===0.01){let diff=Math.abs(Math.log10(c.mult)-Math.log10(m));if(diff<bestDiff){bestDiff=diff;best=i;}}});return best;};
+  const findTol=t=>{let tv=parseFloat(t);return COLORS.findIndex(c=>c.tol===tv);};
+  const ti=findTol(tolVal);
+  
+  let exp3=Math.floor(Math.log10(ohms))-1;
+  let sig3=Math.round(ohms/Math.pow(10,exp3));
+  while(sig3>=100){sig3=Math.round(sig3/10);exp3++;}
+  while(sig3<10&&exp3>0){sig3=Math.round(sig3*10);exp3--;}
+  let d3_1=Math.floor(sig3/10),d3_2=sig3%10;
+  
+  let exp4=Math.floor(Math.log10(ohms))-1;
+  let sig4=Math.round(ohms/Math.pow(10,exp4));
+  while(sig4>=100){sig4=Math.round(sig4/10);exp4++;}
+  while(sig4<10&&exp4>0){sig4=Math.round(sig4*10);exp4--;}
+  let d4_1=Math.floor(sig4/10),d4_2=sig4%10;
+  
+  let exp5=Math.floor(Math.log10(ohms))-2;
+  let sig5=Math.round(ohms/Math.pow(10,exp5));
+  while(sig5>=1000){sig5=Math.round(sig5/10);exp5++;}
+  while(sig5<100&&exp5>0){sig5=Math.round(sig5*10);exp5--;}
+  let d5_1=Math.floor(sig5/100),d5_2=Math.floor((sig5%100)/10),d5_3=sig5%10;
+  
+  const chipsR3=[{ci:findDigit(d3_1),label:currentLang==='en'?'D1':'رقم۱'},{ci:findDigit(d3_2),label:currentLang==='en'?'D2':'رقم۲'},{ci:findMult(Math.pow(10,exp3)),label:currentLang==='en'?'Mult':'ضریب'}];
+  const chipsR4=[{ci:findDigit(d4_1),label:currentLang==='en'?'D1':'رقم۱'},{ci:findDigit(d4_2),label:currentLang==='en'?'D2':'رقم۲'},{ci:findMult(Math.pow(10,exp4)),label:currentLang==='en'?'Mult':'ضریب'},{ci:ti,label:currentLang==='en'?'Tol':'تلرانس'}];
+  const chipsR5=[{ci:findDigit(d5_1),label:currentLang==='en'?'D1':'رقم۱'},{ci:findDigit(d5_2),label:currentLang==='en'?'D2':'رقم۲'},{ci:findDigit(d5_3),label:currentLang==='en'?'D3':'رقم۳'},{ci:findMult(Math.pow(10,exp5)),label:currentLang==='en'?'Mult':'ضریب'},{ci:ti,label:currentLang==='en'?'Tol':'تلرانس'}];
+  
+  const renderChips=(id,chips)=>{const c=document.getElementById(id);c.innerHTML='';chips.forEach(ch=>{const div=document.createElement('div');div.className='color-result-chip';if(ch.ci>=0){div.style.background=COLORS[ch.ci].hex;div.style.color=COLORS[ch.ci].textColor;div.innerHTML=ch.label+'<br><small>'+(currentLang==='en'?COLORS[ch.ci].name:COLORS[ch.ci].nameFa)+'</small>';}else{div.style.background='#555';div.style.color='#999';div.innerHTML=ch.label+'<br><small>—</small>';}c.appendChild(div);});};
+  
+  renderChips('chipsR3',chipsR3);
+  renderChips('chipsR4',chipsR4);
+  renderChips('chipsR5',chipsR5);
+  document.getElementById('o2cValueR').textContent=formatOhms(ohms)+' '+COLORS[ti].tolLabel;
+}
+
+function henryToColor(){
+  const val=parseFloat(document.getElementById('henryVal').value)||0;
+  const unit=parseFloat(document.getElementById('henryUnit').value);
+  const tolVal=document.getElementById('henryTol').value;
+  const henry=val*unit;
+  const microHenry=henry*1000000;
+  
+  if(microHenry<=0){document.getElementById('h2cValueI').textContent='—';document.getElementById('chipsI3').innerHTML='';document.getElementById('chipsI4').innerHTML='';document.getElementById('chipsI5').innerHTML='';return;}
+  
+  const findDigit=d=>COLORS.findIndex(c=>c.digit===d);
+  const findMult=m=>{let best=-1,bestDiff=Infinity;COLORS.forEach((c,i)=>{if(c.mult>0||c.mult===0.1||c.mult===0.01){let diff=Math.abs(Math.log10(c.mult)-Math.log10(m));if(diff<bestDiff){bestDiff=diff;best=i;}}});return best;};
+  const findTol=t=>{let tv=parseFloat(t);return COLORS.findIndex(c=>c.tol===tv);};
+  const ti=findTol(tolVal);
+  
+  let exp3=Math.floor(Math.log10(microHenry))-1;
+  let sig3=Math.round(microHenry/Math.pow(10,exp3));
+  while(sig3>=100){sig3=Math.round(sig3/10);exp3++;}
+  while(sig3<10&&exp3>0){sig3=Math.round(sig3*10);exp3--;}
+  let d3_1=Math.floor(sig3/10),d3_2=sig3%10;
+  
+  let exp4=Math.floor(Math.log10(microHenry))-1;
+  let sig4=Math.round(microHenry/Math.pow(10,exp4));
+  while(sig4>=100){sig4=Math.round(sig4/10);exp4++;}
+  while(sig4<10&&exp4>0){sig4=Math.round(sig4*10);exp4--;}
+  let d4_1=Math.floor(sig4/10),d4_2=sig4%10;
+  
+  let exp5=Math.floor(Math.log10(microHenry))-2;
+  let sig5=Math.round(microHenry/Math.pow(10,exp5));
+  while(sig5>=1000){sig5=Math.round(sig5/10);exp5++;}
+  while(sig5<100&&exp5>0){sig5=Math.round(sig5*10);exp5--;}
+  let d5_1=Math.floor(sig5/100),d5_2=Math.floor((sig5%100)/10),d5_3=sig5%10;
+  
+  const chipsI3=[{ci:findDigit(d3_1),label:currentLang==='en'?'D1':'رقم۱'},{ci:findDigit(d3_2),label:currentLang==='en'?'D2':'رقم۲'},{ci:findMult(Math.pow(10,exp3)),label:currentLang==='en'?'Mult':'ضریب'}];
+  const chipsI4=[{ci:findDigit(d4_1),label:currentLang==='en'?'D1':'رقم۱'},{ci:findDigit(d4_2),label:currentLang==='en'?'D2':'رقم۲'},{ci:findMult(Math.pow(10,exp4)),label:currentLang==='en'?'Mult':'ضریب'},{ci:ti,label:currentLang==='en'?'Tol':'تلرانس'}];
+  const chipsI5=[{ci:findDigit(d5_1),label:currentLang==='en'?'D1':'رقم۱'},{ci:findDigit(d5_2),label:currentLang==='en'?'D2':'رقم۲'},{ci:findDigit(d5_3),label:currentLang==='en'?'D3':'رقم۳'},{ci:findMult(Math.pow(10,exp5)),label:currentLang==='en'?'Mult':'ضریب'},{ci:ti,label:currentLang==='en'?'Tol':'تلرانس'}];
+  
+  const renderChips=(id,chips)=>{const c=document.getElementById(id);c.innerHTML='';chips.forEach(ch=>{const div=document.createElement('div');div.className='color-result-chip';if(ch.ci>=0){div.style.background=COLORS[ch.ci].hex;div.style.color=COLORS[ch.ci].textColor;div.innerHTML=ch.label+'<br><small>'+(currentLang==='en'?COLORS[ch.ci].name:COLORS[ch.ci].nameFa)+'</small>';}else{div.style.background='#555';div.style.color='#999';div.innerHTML=ch.label+'<br><small>—</small>';}c.appendChild(div);});};
+  
+  renderChips('chipsI3',chipsI3);
+  renderChips('chipsI4',chipsI4);
+  renderChips('chipsI5',chipsI5);
+  document.getElementById('h2cValueI').textContent=formatHenry(henry)+' '+COLORS[ti].tolLabel;
+}
+
+function numToCode(){
+  const val=parseFloat(document.getElementById('capVal').value)||0;
+  const unit=parseFloat(document.getElementById('capUnit').value);
+  const tol=document.getElementById('capTolCode').value;
+  const pF=val*unit;
+  
+  if(pF<=0){document.getElementById('capCodeResult').textContent='—';document.getElementById('capCodeDetail').textContent='';document.getElementById('capCodeVisual').textContent='—';return;}
+  
+  let exp=Math.floor(Math.log10(pF))-1;
+  let sig=Math.round(pF/Math.pow(10,exp));
+  while(sig>=100){sig=Math.round(sig/10);exp++;}
+  while(sig<10&&exp>0){sig=Math.round(sig*10);exp--;}
+  
+  let code;
+  if(exp<0){let adjusted=pF;code=adjusted<1?adjusted.toFixed(2).replace('.','R'):adjusted.toFixed(1).replace('.','R');}
+  else{code=String(sig).padStart(2,'0').substring(0,2)+String(exp);}
+  const fullCode=code+tol;
+  
+  document.getElementById('capCodeResult').textContent=fullCode;
+  document.getElementById('capCodeVisual').textContent=fullCode;
+  document.getElementById('capCodeDetail').textContent=(currentLang==='en'?'Calculation: ':'محاسبه: ')+formatCap(pF);
+}
+
+function codeToNum(){
+  const raw=document.getElementById('capCode').value.trim().toUpperCase();
+  document.getElementById('capCodeVisual2').textContent=raw||'—';
+  
+  if(raw.length<3){document.getElementById('capNumResult').textContent='—';document.getElementById('capNumDetail').textContent='';return;}
+  
+  const digits=raw.substring(0,3);
+  const tolLetter=raw.length>3?raw[3]:'';
+  if(!/^\d{3}$/.test(digits)){document.getElementById('capNumResult').textContent=currentLang==='en'?'Invalid code':'کد نامعتبر';return;}
+  
+  const sig=parseInt(digits.substring(0,2));
+  const exp=parseInt(digits[2]);
+  const pF=sig*Math.pow(10,exp);
+  const tolMap={J:'±5%',K:'±10%',M:'±20%'};
+  const tolStr=tolMap[tolLetter]||'';
+  
+  document.getElementById('capNumResult').textContent=formatCap(pF)+(tolStr?' '+tolStr:'');
+  document.getElementById('capNumDetail').textContent=sig+' × 10^'+exp+' pF = '+pF.toLocaleString()+' pF';
+}
+
+function formatCap(pF){
+  if(pF>=1e6)return(pF/1e6).toPrecision(4).replace(/\.?0+$/,'')+' µF';
+  if(pF>=1e3)return(pF/1e3).toPrecision(4).replace(/\.?0+$/,'')+' nF';
+  return pF.toPrecision(4).replace(/\.?0+$/,'')+' pF';
+}
+
+buildBands('r');buildBands('i');calcResistance();calcInductance();updateVisualR();updateVisualI();numToCode();codeToNum();
+</script>
+</body>
+</html>
