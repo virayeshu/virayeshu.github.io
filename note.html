@@ -12,8 +12,6 @@
 <script src="https://unpkg.com/marked@4.3.0/marked.min.js" 
         onerror="loadFallbackMarked()"></script>
 
-
-
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
@@ -503,38 +501,39 @@
   }
 
   .table-toolbar {
-    display: flex;
-    gap: 6px;
-    padding: 6px 8px;
+    display: inline-flex;
+    gap: 4px;
+    padding: 3px 6px;
     background: var(--surface2);
     border: 1px solid var(--border);
-    border-bottom: none;
-    border-radius: 6px 6px 0 0;
-    margin-top: 12px;
-    flex-wrap: wrap;
+    border-radius: 4px;
+    margin-top: 8px;
+    margin-bottom: 4px;
   }
   .table-toolbar + table {
-    border-radius: 0 0 6px 6px;
     margin-top: 0;
   }
   .table-btn {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px 8px;
-    background: var(--surface3);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    color: var(--text2);
-    font-size: 0.75rem;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border: none;
+    border-radius: 3px;
+    color: var(--text3);
+    font-size: 0.85rem;
     cursor: pointer;
     transition: var(--transition);
-    font-family: inherit;
   }
   .table-btn:hover {
+    background: var(--surface3);
+    color: var(--accent);
+  }
+  .table-btn.active {
     background: var(--accent);
     color: #fff;
-    border-color: var(--accent);
   }
   .editor-content.preview-mode table.editing {
     border: 1px solid var(--accent);
@@ -741,11 +740,10 @@ async function decryptData(encryptedStr, password) {
     const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, data);
     return dec.decode(decrypted);
   } catch (e) {
-    return null; // Decryption failed (wrong password or corrupted data)
+    return null;
   }
 }
 
-// --- RESET ALL DATA (for when password is forgotten) ---
 function resetAllData() {
   const confirmMsg = "⚠️ This will PERMANENTLY DELETE all your encrypted notes and settings.\n\nYou will NOT be able to recover them.\n\nType 'DELETE' to confirm:";
   const userInput = prompt(confirmMsg);
@@ -779,9 +777,7 @@ function showLockScreen(message, isWrongPassword) {
     </div>
   `;
 }
-// ------------------------------------------------------------------
 
-// Fallback function if CDN fails
 function loadFallbackMarked() {
   console.warn('CDN failed to load marked.js. Using fallback parser.');
   document.getElementById('cdnWarning').classList.add('show');
@@ -790,10 +786,8 @@ function loadFallbackMarked() {
   }, 5000);
 }
 
-// Check if marked is available
 let markedAvailable = typeof window.marked !== 'undefined';
 
-// Simple fallback markdown parser
 function fallbackMarkdownParse(text) {
   if (!text) return '';
   let html = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -1028,7 +1022,6 @@ function renderMarkdown() {
   
   preview.innerHTML = html;
 
-  // Copy Code Block Feature
   const preBlocks = preview.querySelectorAll('pre');
   preBlocks.forEach(pre => {
     const btn = document.createElement('button');
@@ -1048,7 +1041,6 @@ function renderMarkdown() {
     pre.appendChild(btn);
   });
 
-  // Interactive Tables Feature
   enhanceTables();
 
   const checkboxes = preview.querySelectorAll('input[type="checkbox"]');
@@ -1082,10 +1074,9 @@ function enhanceTables() {
     const toolbar = document.createElement('div');
     toolbar.className = 'table-toolbar';
     toolbar.innerHTML = `
-      <button class="table-btn" onclick="toggleTableEdit(this, ${tableIndex})">✏️ Edit Cells</button>
-      <button class="table-btn" onclick="addTableRow(this, ${tableIndex})">➕ Add Row</button>
-      <button class="table-btn" onclick="addTableColumn(this, ${tableIndex})">➕ Add Column</button>
-      <button class="table-btn save-table-btn" onclick="saveTableToMarkdown(this, ${tableIndex})" style="display:none;">💾 Save</button>
+      <button class="table-btn" onclick="toggleTableEdit(this, ${tableIndex})" title="Edit / Save">✏️</button>
+      <button class="table-btn" onclick="addTableRow(this, ${tableIndex})" title="Add Row">➕</button>
+      <button class="table-btn" onclick="addTableColumn(this, ${tableIndex})" title="Add Column">➕</button>
     `;
     table.parentNode.insertBefore(toolbar, table);
     table.dataset.tableIndex = tableIndex;
@@ -1096,18 +1087,19 @@ function toggleTableEdit(btn, tableIndex) {
   const table = btn.closest('.table-toolbar').nextElementSibling;
   const isEditing = table.classList.contains('editing');
   const cells = table.querySelectorAll('th, td');
-  const saveBtn = btn.parentElement.querySelector('.save-table-btn');
 
   if (!isEditing) {
-    cells.forEach(cell => { cell.contentEditable = "true"; cell.classList.add('editable-cell'); });
+    cells.forEach(cell => { cell.contentEditable = "true"; });
     table.classList.add('editing');
-    btn.textContent = '🔒 Lock Cells';
-    saveBtn.style.display = 'inline-flex';
+    btn.textContent = '💾';
+    btn.classList.add('active');
+    btn.title = 'Save & Lock';
   } else {
-    cells.forEach(cell => { cell.contentEditable = "false"; cell.classList.remove('editable-cell'); });
+    cells.forEach(cell => { cell.contentEditable = "false"; });
     table.classList.remove('editing');
-    btn.textContent = '✏️ Edit Cells';
-    saveBtn.style.display = 'none';
+    btn.textContent = '✏️';
+    btn.classList.remove('active');
+    btn.title = 'Edit';
     saveTableToMarkdown(btn, tableIndex);
   }
 }
